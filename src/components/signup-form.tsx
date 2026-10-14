@@ -189,7 +189,7 @@ export function SignupForm({
         <Field>
           <SocialAuthButtons />
           <FieldDescription className="px-6 text-center">
-            Already have an account? <Link to="/login">Sign in</Link>
+            Already have an account?{" "} <Link to="/login">Sign in</Link>
           </FieldDescription>
         </Field>
       </FieldGroup>

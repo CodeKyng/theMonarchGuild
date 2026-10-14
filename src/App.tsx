@@ -7,12 +7,11 @@ import {
 } from "react-router-dom";
 
 import { AuthProvider, useAuth } from "./auth/AuthContext";
-// import RoleRoute from "./components/RoleRoute";
+import RoleRoute from "./components/RoleRoute";
 
 // import AdminLayout from "./layouts/AdminLayout";
 // import StaffLayout from "./layouts/StaffLayout";
-// import MemberLayout from "./layouts/MemberLayout"
-// ;
+import MemberLayout from "./components/layout/MemberLayout";
 
 import Login from "./pages/public/Login";
 import Signup from "./pages/public/Signup";
@@ -21,7 +20,9 @@ import Dashboard from "./pages/public/Dashboard";
 
 // import AdminDashboard from "./pages/admin/AdminDashboard";
 // import StaffDashboard from "./pages/staff/StaffDashboard";
-// import MemberDashboard from "./pages/members/MemberDashboard";
+import MemberDashboard from "./pages/member/Dashboard";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminLayout from "./components/layout/AdminLayout";
 
 function HomeRedirect() {
   const { user, role, loading } = useAuth();
@@ -54,10 +55,10 @@ function AppRoutes() {
       {/* <Route path="/access-denied" element={<AccessDenied />} /> */}
 
       {/* Admin routes */}
-      {/* <Route element={<RoleRoute allowedRoles={["admin"]} />}>
+      <Route element={<RoleRoute allowedRoles={["admin"]} />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
-          <Route
+          {/* <Route
             path="users"
             element={<h2>Manage Users</h2>}
           />
@@ -68,9 +69,9 @@ function AppRoutes() {
           <Route
             path="settings"
             element={<h2>Admin Settings</h2>}
-          />
+          /> */}
         </Route>
-      </Route> */}
+      </Route>
 
       {/* Staff routes */}
       {/* <Route element={<RoleRoute allowedRoles={["staff"]} />}>
@@ -88,19 +89,19 @@ function AppRoutes() {
       </Route> */}
 
       {/* Member routes */}
-      {/* <Route element={<RoleRoute allowedRoles={["member"]} />}>
+      <Route element={<RoleRoute allowedRoles={["member"]} />}>
         <Route path="/member" element={<MemberLayout />}>
           <Route index element={<MemberDashboard />} />
-          <Route
+          {/* <Route
             path="services"
             element={<h2>Member Services</h2>}
           />
           <Route
             path="profile"
             element={<h2>My Profile</h2>}
-          />
+          /> */}
         </Route>
-      </Route> */}
+      </Route>
 
       {/* Home and fallback */}
       <Route path="/" element={<HomeRedirect />} /> 

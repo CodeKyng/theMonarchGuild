@@ -91,36 +91,42 @@ export default function SocialAuthButtons() {
   }
 
   return (
-    <div className="flex gap-2">
+    <div>
       {error && (
-        <p className="auth-error" role="alert">
+        <p className="text-red-400 my-4" role="alert">
           {error}
         </p>
       )}
 
-      <Button
+      <div className="flex flex-col gap-2 sm:flex-row" >
+        <Button
         type="button"
-        className="social-button"
         disabled={loadingProvider !== null}
         onClick={() => signInWithProvider("google")}
+        className="h-auto min-h-10 w-full min-w-0 whitespace-normal px-3 py-2 text-center sm:flex-1"
       >
         <GoogleIcon />
-        {loadingProvider === "google"
-          ? "Connecting to Google..."
-          : "Continue with Google"}
+        <span className="min-w-0 whitespace-normal">
+          {loadingProvider === "google"
+            ? "Connecting to Google..."
+            : "Continue with Google"}
+        </span>
       </Button>
 
       <Button
         type="button"
-        className="social-button apple-button"
         disabled={loadingProvider !== null}
         onClick={() => signInWithProvider("apple")}
+        className="h-auto min-h-10 w-full min-w-0 whitespace-normal px-3 py-2 text-center sm:flex-1"
       >
         <AppleIcon />
-        {loadingProvider === "apple"
-          ? "Connecting to Apple..."
-          : "Continue with Apple"}
+        <span className="min-w-0 whitespace-normal">
+          {loadingProvider === "apple"
+            ? "Connecting to Apple..."
+            : "Continue with Apple"}
+        </span>
       </Button>
+      </div>
     </div>
   );
 }

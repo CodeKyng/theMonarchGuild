@@ -122,9 +122,20 @@
   * {
     @apply border-border outline-ring/50;
     }
+  html {
+    min-width: 320px;
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-background text-foreground;
+    min-width: 320px;
+    width: 100%;
     }
+  #root {
+    min-height: 100svh;
+    width: 100%;
+    min-width: 0;
+  }
   button:not(:disabled), [role="button"]:not(:disabled) {
     cursor: pointer;
     }
