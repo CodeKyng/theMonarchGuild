@@ -31,6 +31,22 @@ const adminPageTitles: Record<string, string> = {
   "/admin/platform-settings": "Platform Settings",
 };
 
+const memberPageTitles: Record<string, string> = {
+  "/member": "Overview",
+  "/member/community": "Community",
+  "/member/explore-members": "Explore Members",
+  "/member/projects": "Projects",
+  "/member/opportunities": "Opportunities",
+  "/member/learning-hub": "Learning Hub",
+  "/member/events": "Events",
+  "/member/messages": "Messages",
+  "/member/notifications": "Notifications",
+  "/member/leaderboard": "Leaderboard",
+  "/member/profile": "My Profile",
+  "/member/account": "My Profile",
+  "/member/settings": "Settings",
+};
+
 export default function WorkspaceHeader({ role }: { role: UserRole }) {
   const { user } = useAuth();
   const location = useLocation();
@@ -38,12 +54,14 @@ export default function WorkspaceHeader({ role }: { role: UserRole }) {
   const name = user?.displayName?.trim() || user?.email || roleLabels[role];
   const pageTitle = role === "admin"
     ? adminPageTitles[location.pathname] ?? "Admin workspace"
-    : roleLabels[role];
+    : role === "member"
+      ? memberPageTitles[location.pathname] ?? "Member workspace"
+      : roleLabels[role];
   
 
   return (
-    <header className="sticky rounded rounded-b-md top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-border bg-background/90 px-4 backdrop-blur sm:px-6">
-      <div className="flex min-w-0 items-center gap-3">
+    <header className="sticky top-0 z-20 flex h-16 min-w-0 items-center justify-between gap-2 border-b border-border bg-background/90 px-2.5 backdrop-blur sm:gap-3 sm:px-5">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <SidebarTrigger aria-label="Toggle navigation" />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-foreground">{pageTitle}</p>
@@ -51,7 +69,7 @@ export default function WorkspaceHeader({ role }: { role: UserRole }) {
         </div>
       </div>
 
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
         <ModeToggle />
         <AvatarDropdown />
       </div>

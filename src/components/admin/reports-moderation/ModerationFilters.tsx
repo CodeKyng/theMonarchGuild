@@ -20,7 +20,7 @@ export default function ModerationFilters({
   onSeverityChange: (value: string) => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
       <div>
         <h2 className="font-semibold">Report queue</h2>
         <p className="mt-1 text-sm text-muted-foreground">Filter reports by status, urgency, or the people and topics involved.</p>

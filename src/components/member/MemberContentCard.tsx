@@ -1,0 +1,10 @@
+import { ArrowUpRight, CalendarDays, ExternalLink } from "lucide-react";
+import type { MemberResource } from "@/components/member/types";
+import { Button } from "@/components/ui/button";
+
+function safeUrl(value: string) { try { const url = new URL(value); return url.protocol === "https:" || url.protocol === "http:" ? url.href : ""; } catch { return ""; } }
+function dateLabel(date: Date | null) { return date ? new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(date) : ""; }
+export default function MemberContentCard({ resource }: { resource: MemberResource }) {
+  const href = safeUrl(resource.link);
+  return <article className="flex min-w-0 flex-col rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition-colors hover:border-primary/30"><div className="flex flex-wrap items-center gap-2">{resource.category && <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">{resource.category}</span>}{resource.status && <span className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground">{resource.status}</span>}</div><h3 className="mt-4 line-clamp-2 font-semibold leading-6">{resource.title}</h3><p className="mt-2 line-clamp-4 min-h-20 text-sm leading-5 text-muted-foreground">{resource.description || "Explore this guild resource and see how you can take part."}</p><div className="mt-4 space-y-2 border-t border-border/70 pt-3 text-xs text-muted-foreground">{resource.owner && <p className="truncate">{resource.owner}</p>}{resource.date && <p className="flex items-center gap-1.5"><CalendarDays className="size-3.5" aria-hidden="true" />{dateLabel(resource.date)}</p>}{resource.meta && <p className="line-clamp-2">{resource.meta}</p>}</div>{href ? <Button render={<a href={href} target="_blank" rel="noreferrer" />} variant="outline" className="mt-4 w-full justify-between">Explore<ExternalLink className="size-4" aria-hidden="true" /></Button> : <Button type="button" variant="ghost" disabled className="mt-4 w-full justify-between text-muted-foreground">More details coming soon<ArrowUpRight className="size-4" aria-hidden="true" /></Button>}</article>;
+}

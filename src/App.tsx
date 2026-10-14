@@ -23,6 +23,17 @@ const Dashboard = lazy(() => import("./pages/public/Dashboard"));
 // import AdminDashboard from "./pages/admin/AdminDashboard";
 // import StaffDashboard from "./pages/staff/StaffDashboard";
 const MemberDashboard = lazy(() => import("./pages/member/Dashboard"));
+const MemberSettings = lazy(() => import("./pages/member/Settings"));
+const MemberCommunity = lazy(() => import("./pages/member/Community"));
+const ExploreMembers = lazy(() => import("./pages/member/ExploreMembers"));
+const MemberProjects = lazy(() => import("./pages/member/Projects"));
+const MemberOpportunities = lazy(() => import("./pages/member/Opportunities"));
+const MemberLearningHub = lazy(() => import("./pages/member/LearningHub"));
+const MemberEvents = lazy(() => import("./pages/member/Events"));
+const MemberLeaderboard = lazy(() => import("./pages/member/Leaderboard"));
+const MemberMessages = lazy(() => import("./pages/member/Messages"));
+const MemberNotifications = lazy(() => import("./pages/member/Notifications"));
+const MemberProfile = lazy(() => import("./pages/member/Profile"));
 const StaffDashboard = lazy(() => import("./pages/staff/Dashboard"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminAnalytics = lazy(() => import("./pages/admin/Analytics"));
@@ -126,6 +137,18 @@ function AppRoutes() {
       <Route element={<RoleRoute allowedRoles={["member"]} />}>
         <Route path="/member" element={<MemberLayout />}>
           <Route index element={<MemberDashboard />} />
+          <Route path="overview" element={<Navigate to="/member" replace />} />
+          <Route path="community" element={<MemberCommunity />} />
+          <Route path="explore-members" element={<ExploreMembers />} />
+          <Route path="projects" element={<MemberProjects />} />
+          <Route path="opportunities" element={<MemberOpportunities />} />
+          <Route path="learning-hub" element={<MemberLearningHub />} />
+          <Route path="events" element={<MemberEvents />} />
+          <Route path="messages" element={<MemberMessages />} />
+          <Route path="notifications" element={<MemberNotifications />} />
+          <Route path="leaderboard" element={<MemberLeaderboard />} />
+          <Route path="profile" element={<MemberProfile />} />
+          <Route path="settings" element={<MemberSettings />} />
           <Route path="account" element={<Account />} />
           {/* <Route
             path="services"

@@ -333,7 +333,7 @@ export default function Bento1({ className }: Bento1Props) {
 
             <div className="relative flex min-h-[260px] w-full flex-1 items-end justify-end overflow-visible rounded-br-3xl pt-4 md:pt-8">
               {/* Animated Group Wrapper */}
-              <div className="relative flex w-[110%] flex-col transition-transform duration-500 ease-out">
+              <div className="relative flex w-full flex-col transition-transform duration-500 ease-out sm:w-[110%]">
                 {/* Avatar Stack */}
                 <div className="relative z-20 mb-4 flex -space-x-3">
                   {avatars.map((avatar, idx) => (

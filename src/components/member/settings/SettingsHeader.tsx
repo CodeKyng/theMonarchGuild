@@ -1,0 +1,5 @@
+import { Settings2, Sparkles } from "lucide-react";
+
+export default function SettingsHeader() {
+  return <header className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8"><div className="absolute -right-10 -top-16 size-56 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" /><div className="relative"><p className="flex items-center gap-2 text-sm font-medium text-primary"><Settings2 className="size-4" aria-hidden="true" />Member workspace</p><h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Settings</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">Set up your workspace, choose what members can see, and keep your sign-in details current.</p><div className="mt-5 inline-flex items-center gap-2 rounded-full bg-muted/70 px-3 py-1.5 text-xs text-muted-foreground"><Sparkles className="size-3.5 text-primary" aria-hidden="true" />Your preferences travel with your Guild account where supported.</div></div></header>;
+}

@@ -20,7 +20,7 @@ export default function OpportunityFilters({
   onTypeChange: (value: string) => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
       <div>
         <h2 className="font-semibold">Opportunity board</h2>
         <p className="mt-1 text-sm text-muted-foreground">Search job listings and filter by status or work type.</p>

@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import DirectoryVisibilityControl from "@/components/member/explore-members/DirectoryVisibilityControl"
 
 export interface ProfileData {
   displayName: string
@@ -41,7 +42,8 @@ interface EditProfileProps {
   initialData: ProfileData
   email: string
   role: string
-  onSave: (data: ProfileData) => Promise<void>
+  initialDirectoryVisible: boolean
+  onSave: (data: ProfileData, showInDirectory: boolean) => Promise<void>
 }
 
 export function EditProfile({
@@ -50,10 +52,12 @@ export function EditProfile({
   initialData,
   email,
   role,
+  initialDirectoryVisible,
   onSave,
 }: EditProfileProps) {
   const [formData, setFormData] = useState(initialData)
   const [saving, setSaving] = useState(false)
+  const [showInDirectory, setShowInDirectory] = useState(initialDirectoryVisible)
   const [error, setError] = useState("")
 
   function updateField(field: keyof ProfileData, value: string) {
@@ -66,7 +70,7 @@ export function EditProfile({
     setSaving(true)
     setError("")
     try {
-      await onSave(formData)
+      await onSave(formData, showInDirectory)
       onClose()
     } catch (saveError) {
       setError(
@@ -279,6 +283,7 @@ export function EditProfile({
               </div>
             </section>
 
+            <DirectoryVisibilityControl checked={showInDirectory} onChange={setShowInDirectory} disabled={saving} />
             {error && (
               <p role="alert" className="text-sm text-destructive">
                 {error}

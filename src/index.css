@@ -124,10 +124,14 @@
     }
   html {
     scroll-behavior: smooth;
+    max-width: 100%;
+    overflow-x: clip;
   }
   body {
     @apply bg-background text-foreground;
     width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
     }
   #root {
     min-height: 100svh;

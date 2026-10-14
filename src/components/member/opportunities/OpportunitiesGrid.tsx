@@ -1,0 +1,9 @@
+import { BriefcaseBusiness, SearchX } from "lucide-react";
+import type { AdminOpportunity } from "@/components/admin/opportunities/types";
+import OpportunityCard from "@/components/member/opportunities/OpportunityCard";
+
+export default function OpportunitiesGrid({ opportunities, loading, hasFilters, onView }: { opportunities: AdminOpportunity[]; loading: boolean; hasFilters: boolean; onView: (opportunity: AdminOpportunity) => void }) {
+  if (loading && !opportunities.length) return <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" role="status" aria-label="Loading guild opportunities">{Array.from({ length: 6 }, (_, index) => <div key={index} className="h-96 animate-pulse rounded-2xl bg-muted" />)}</div>;
+  if (!opportunities.length) return <div className="rounded-2xl border border-dashed border-border bg-card px-5 py-14 text-center"><span className="mx-auto grid size-12 place-items-center rounded-2xl bg-muted text-muted-foreground">{hasFilters ? <SearchX className="size-5" aria-hidden="true" /> : <BriefcaseBusiness className="size-5" aria-hidden="true" />}</span><h3 className="mt-4 font-semibold">{hasFilters ? "No opportunities match those filters" : "No open opportunities right now"}</h3><p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-muted-foreground">{hasFilters ? "Try a different search, status, or opportunity type." : "New Web3 roles, grants, gigs, and bounties will appear here as the guild shares them."}</p></div>;
+  return <section aria-label="Guild opportunities"><p className="mb-3 text-xs text-muted-foreground">Showing {opportunities.length} {opportunities.length === 1 ? "opportunity" : "opportunities"}</p><div className="grid items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3">{opportunities.map((opportunity) => <OpportunityCard key={opportunity.id} opportunity={opportunity} onView={onView} />)}</div></section>;
+}

@@ -22,15 +22,23 @@ export default function AwardContributionDialog({ open, members, initialMember, 
     if (!title.trim()) { setError("Add a short description of the contribution."); return; }
     if (!Number.isInteger(amount) || amount < 1 || amount > 10000) { setError("Points must be a whole number from 1 to 10,000."); return; }
     setSaving(true); setError("");
-    const rewardRef = doc(collection(db, "reputationRewards")); const memberRef = doc(db, "users", member.id);
+    const rewardRef = doc(collection(db, "reputationRewards")); const memberRef = doc(db, "users", member.id); const leaderboardRef = doc(db, "publicLeaderboard", member.id); const notificationRef = doc(collection(db, "users", member.id, "notifications"));
     try {
       await runTransaction(db, async (transaction) => {
         const memberSnapshot = await transaction.get(memberRef);
+        const leaderboardSnapshot = await transaction.get(leaderboardRef);
         if (!memberSnapshot.exists()) throw new Error("Member account no longer exists.");
-        const current = memberSnapshot.data().reputationPoints;
+        const memberData = memberSnapshot.data();
+        const current = memberData.reputationPoints;
         const currentPoints = typeof current === "number" && Number.isFinite(current) ? current : 0;
         transaction.update(memberRef, { reputationPoints: currentPoints + amount, reputationUpdatedAt: serverTimestamp() });
+        if (memberData.showOnLeaderboard === true) {
+          transaction.set(leaderboardRef, { displayName: typeof memberData.displayName === "string" ? memberData.displayName : member.name, points: currentPoints + amount, updatedAt: serverTimestamp() });
+        } else if (leaderboardSnapshot.exists()) {
+          transaction.delete(leaderboardRef);
+        }
         transaction.set(rewardRef, { userId: member.id, memberName: member.name, memberEmail: member.email, title: title.trim(), category, points: amount, note: note.trim(), awardedBy: "admin", createdAt: serverTimestamp() });
+        transaction.set(notificationRef, { type: "reputation", title: "Contribution recognized", body: `${title.trim()} · +${amount.toLocaleString()} reputation points`, href: "/member/leaderboard", actorName: "The Monarch Guild", sourceId: rewardRef.id, createdAt: serverTimestamp(), readAt: null });
       });
       onAwarded({ member, title: title.trim(), category, points: amount, note: note.trim() }); onClose();
     } catch (saveError) {

@@ -1,0 +1,16 @@
+import { useState } from "react";
+import { LoaderCircle, Send, Sparkles } from "lucide-react";
+import type { CommunityCategory } from "@/components/member/community/types";
+import { communityCategories } from "@/components/member/community/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+
+export default function CommunityComposer({ name, photoUrl, posting, onPost }: { name: string; photoUrl: string; posting: boolean; onPost: (body: string, category: CommunityCategory) => Promise<void> }) {
+  const [body, setBody] = useState(""); const [category, setCategory] = useState<CommunityCategory>("General"); const [error, setError] = useState("");
+  async function submit(event: React.FormEvent<HTMLFormElement>) { event.preventDefault(); const message = body.trim(); if (!message) { setError("Write a message before sharing it with the community."); return; } if (message.length > 2000) { setError("Keep your post under 2,000 characters."); return; } setError(""); try { await onPost(message, category); setBody(""); setCategory("General"); } catch { setError("Your post could not be published. Please try again."); } }
+  return <Card className="border-border/70 shadow-sm"><CardContent className="p-4 sm:p-5"><form onSubmit={(event) => void submit(event)} className="flex gap-3"><Avatar className="mt-1 size-10 shrink-0"><AvatarImage src={photoUrl} alt="" /><AvatarFallback>{name.slice(0, 1).toUpperCase() || "M"}</AvatarFallback></Avatar><div className="min-w-0 flex-1"><Label htmlFor="community-post" className="sr-only">Share with the guild</Label><Textarea id="community-post" value={body} onChange={(event) => setBody(event.target.value)} placeholder="What are you building, learning, or celebrating?" className="min-h-24 resize-y rounded-2xl border-border/70 bg-background" maxLength={2000} disabled={posting} /><div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-2"><Sparkles className="size-4 text-amber-500" aria-hidden="true" /><Select value={category} onValueChange={(value) => { if (value) setCategory(value as CommunityCategory); }} disabled={posting}><SelectTrigger aria-label="Post category" className="h-8 w-40 rounded-full"><SelectValue /></SelectTrigger><SelectContent>{communityCategories.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent></Select><span className="text-xs text-muted-foreground">{body.length}/2,000</span></div><Button type="submit" disabled={posting || !body.trim()} className="bg-amber-400 text-black hover:bg-amber-300">{posting ? <LoaderCircle className="size-4 animate-spin" aria-hidden="true" /> : <Send className="size-4" aria-hidden="true" />}{posting ? "Sharing…" : "Share with guild"}</Button></div>{error && <p role="alert" className="mt-2 text-sm text-destructive">{error}</p>}</div></form></CardContent></Card>;
+}

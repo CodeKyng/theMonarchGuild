@@ -1,0 +1,6 @@
+import { BellRing, CheckCheck, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export default function NotificationsHeader({ unreadCount, markingAllRead, onMarkAllRead }: { unreadCount: number; markingAllRead: boolean; onMarkAllRead: () => void }) {
+  return <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="flex items-center gap-2 text-sm font-medium text-primary"><BellRing className="size-4" aria-hidden="true" />Guild activity</p><h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">Notifications</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">Keep up with new messages and contribution recognition across the Guild.</p></div><div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary"><Sparkles className="size-3.5" aria-hidden="true" />{unreadCount} unread</span><Button type="button" variant="outline" onClick={onMarkAllRead} disabled={!unreadCount || markingAllRead}>{markingAllRead ? "Marking…" : <><CheckCheck className="size-4" aria-hidden="true" />Mark all read</>}</Button></div></header>;
+}

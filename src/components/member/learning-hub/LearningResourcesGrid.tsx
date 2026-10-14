@@ -1,0 +1,9 @@
+import { BookOpen, SearchX } from "lucide-react";
+import type { LearningResource } from "@/components/admin/learning-management/types";
+import LearningResourceCard from "@/components/member/learning-hub/LearningResourceCard";
+
+export default function LearningResourcesGrid({ resources, loading, hasFilters, onView }: { resources: LearningResource[]; loading: boolean; hasFilters: boolean; onView: (resource: LearningResource) => void }) {
+  if (loading && !resources.length) return <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" role="status" aria-label="Loading learning resources">{Array.from({ length: 6 }, (_, index) => <div key={index} className="h-96 animate-pulse rounded-2xl bg-muted" />)}</div>;
+  if (!resources.length) return <div className="rounded-2xl border border-dashed border-border bg-card px-5 py-14 text-center"><span className="mx-auto grid size-12 place-items-center rounded-2xl bg-muted text-muted-foreground">{hasFilters ? <SearchX className="size-5" aria-hidden="true" /> : <BookOpen className="size-5" aria-hidden="true" />}</span><h3 className="mt-4 font-semibold">{hasFilters ? "No resources match those filters" : "The learning library is growing"}</h3><p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-muted-foreground">{hasFilters ? "Try another topic, format, experience level, or search term." : "Published courses, workshops, tutorials, and learning paths will appear here as the guild adds them."}</p></div>;
+  return <section aria-label="Published learning resources"><p className="mb-3 text-xs text-muted-foreground">Showing {resources.length} {resources.length === 1 ? "resource" : "resources"}</p><div className="grid items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3">{resources.map((resource) => <LearningResourceCard key={resource.id} resource={resource} onView={onView} />)}</div></section>;
+}

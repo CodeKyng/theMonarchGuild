@@ -1,9 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   Activity, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined,
-  ClipboardList, Flag, FolderKanban, Gift, GraduationCap, Home,
-  LayoutDashboard, LifeBuoy, Plug, Settings2, ShieldCheck, ShieldEllipsis,
-  UsersRound, type LucideIcon,
+  Bell, ClipboardList, Compass, Flag, FolderKanban, Gift, GraduationCap, Home,
+  LayoutDashboard, LifeBuoy, Mail, Plug, Settings2, ShieldCheck, ShieldEllipsis,
+  Trophy, UserRound, UsersRound, type LucideIcon,
 } from "lucide-react";
 
 import type { UserRole } from "@/auth/AuthContext";
@@ -18,6 +18,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
@@ -38,6 +39,7 @@ const rolePaths: Record<UserRole, string> = {
 
 export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const location = useLocation();
+  const { isMobile, setOpenMobile } = useSidebar();
   const dashboardPath = rolePaths[role];
   const adminGroups: { label: string; links: { label: string; href: string; icon: LucideIcon }[] }[] = [
     { label: "Workspace", links: [
@@ -70,6 +72,26 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
     { label: "Overview", href: dashboardPath, icon: LayoutDashboard },
     { label: "Guild home", href: "/", icon: Home },
   ];
+  const memberGroups: { label: string; links: { label: string; href: string; icon: LucideIcon }[] }[] = [
+    { label: "Guild", links: [
+      { label: "Overview", href: "/member", icon: LayoutDashboard },
+      { label: "Community", href: "/member/community", icon: Activity },
+      { label: "Explore Members", href: "/member/explore-members", icon: Compass },
+    ] },
+    { label: "Grow", links: [
+      { label: "Projects", href: "/member/projects", icon: FolderKanban },
+      { label: "Opportunities", href: "/member/opportunities", icon: BriefcaseBusiness },
+      { label: "Learning Hub", href: "/member/learning-hub", icon: GraduationCap },
+      { label: "Events", href: "/member/events", icon: CalendarDays },
+      { label: "Leaderboard", href: "/member/leaderboard", icon: Trophy },
+    ] },
+    { label: "You", links: [
+      { label: "Messages", href: "/member/messages", icon: Mail },
+      { label: "Notifications", href: "/member/notifications", icon: Bell },
+      { label: "My Profile", href: "/member/profile", icon: UserRound },
+      { label: "Settings", href: "/member/settings", icon: Settings2 },
+    ] },
+  ];
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -90,16 +112,16 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        {(role === "admin" ? adminGroups : [{ label: "Workspace", links: basicLinks }]).map((group) => (
+        {(role === "admin" ? adminGroups : role === "member" ? memberGroups : [{ label: "Workspace", links: basicLinks }]).map((group) => (
         <SidebarGroup key={group.label}>
           <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
           <SidebarMenu>
             {group.links.map(({ label, href, icon: Icon }) => (
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
-                  isActive={location.pathname === href || (href !== "/admin" && location.pathname.startsWith(`${href}/`))}
+                  isActive={location.pathname === href || (href !== "/admin" && href !== "/member" && location.pathname.startsWith(`${href}/`))}
                   tooltip={label}
-                  render={<Link to={href} />}
+                  render={<Link to={href} onClick={() => { if (isMobile) setOpenMobile(false); }} />}
                 >
                   <Icon aria-hidden="true" />
                   <span>{label}</span>

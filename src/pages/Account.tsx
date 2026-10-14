@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { updateProfile } from "firebase/auth";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, writeBatch } from "firebase/firestore";
 import { ArrowLeft, BriefcaseBusiness, Check, CircleUserRound, LoaderCircle, MapPin, UsersRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EditProfile, type ProfileData } from "@/components/editprofile";
 import { db } from "@/firebase";
 import { Globe, Pencil, ExternalLink } from "lucide-react";
+import DirectoryVisibilityControl from "@/components/member/explore-members/DirectoryVisibilityControl";
 
 const emptyProfile: ProfileData = {
   displayName: "", professionalTitle: "", workType: "", experienceYears: "",
@@ -44,6 +45,8 @@ export default function Account() {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [directoryVisible, setDirectoryVisible] = useState(false);
+  const [leaderboardVisible, setLeaderboardVisible] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
   useEffect(() => {
@@ -53,6 +56,8 @@ export default function Account() {
       .then((snapshot) => {
         if (!active) return;
         const data = snapshot.data() ?? {};
+        setDirectoryVisible(data.showInMemberDirectory === true);
+        setLeaderboardVisible(data.showOnLeaderboard === true);
         setProfile(Object.fromEntries(profileFields.map((field) => [field, field === "displayName" ? textValue(data[field]) || user.displayName || "" : textValue(data[field])])) as unknown as ProfileData);
       })
       .catch((error) => {
@@ -76,7 +81,7 @@ export default function Account() {
     setFeedback(null);
   }
 
-  async function persistProfile(cleanProfile: ProfileData) {
+  async function persistProfile(cleanProfile: ProfileData, showInDirectory: boolean) {
     if (!cleanProfile.displayName || cleanProfile.displayName.length > 100) {
       throw new Error("Enter a display name between 1 and 100 characters.");
     }
@@ -95,11 +100,28 @@ export default function Account() {
     setSaving(true);
     setFeedback(null);
     try {
-      await updateDoc(doc(db, "users", authenticatedUser.uid), cleanProfile);
+      const userRef = doc(db, "users", authenticatedUser.uid);
+      const currentUserSnapshot = await getDoc(userRef);
+      const currentUserData = currentUserSnapshot.data() ?? {};
+      const currentPoints = typeof currentUserData.reputationPoints === "number" && Number.isFinite(currentUserData.reputationPoints) ? Math.max(0, Math.floor(currentUserData.reputationPoints)) : 0;
+      const publicRef = doc(db, "publicProfiles", authenticatedUser.uid);
+      const batch = writeBatch(db);
+      batch.update(userRef, { ...cleanProfile, showInMemberDirectory: showInDirectory });
+      if (showInDirectory) {
+        const { displayName, professionalTitle, workType, experienceYears, skills, location, bio, interests, websiteUrl, linkedinUrl, githubUrl, twitterUrl } = cleanProfile;
+        batch.set(publicRef, { displayName, professionalTitle, workType, experienceYears, skills: skills.split(",").map((skill) => skill.trim()).filter(Boolean), location, bio, interests, websiteUrl, linkedinUrl, githubUrl, twitterUrl, updatedAt: serverTimestamp() });
+      } else {
+        batch.delete(publicRef);
+      }
+      if (leaderboardVisible) {
+        batch.set(doc(db, "publicLeaderboard", authenticatedUser.uid), { displayName: cleanProfile.displayName, points: currentPoints, updatedAt: serverTimestamp() });
+      }
+      await batch.commit();
       if (cleanProfile.displayName !== (authenticatedUser.displayName ?? "")) {
         await updateProfile(authenticatedUser, { displayName: cleanProfile.displayName });
       }
       setProfile(cleanProfile);
+      setDirectoryVisible(showInDirectory);
     } catch (error) {
       console.error("Failed to update account:", error);
       throw new Error("We couldn't save your profile. Please try again.", { cause: error });
@@ -114,7 +136,7 @@ export default function Account() {
     setSaving(true);
     setFeedback(null);
     try {
-      await persistProfile(cleanProfile);
+      await persistProfile(cleanProfile, directoryVisible);
       setFeedback({ type: "success", message: "Your profile is saved. Welcome to the guild!" });
     } catch (error) {
       setFeedback({ type: "error", message: error instanceof Error ? error.message : "We couldn't save your profile. Please try again." });
@@ -123,10 +145,10 @@ export default function Account() {
     }
   }
 
-  async function handleModalSave(data: ProfileData) {
+  async function handleModalSave(data: ProfileData, showInDirectory: boolean) {
     const cleanProfile = Object.fromEntries(profileFields.map((field) => [field, data[field].trim()])) as unknown as ProfileData;
     setFeedback(null);
-    await persistProfile(cleanProfile);
+    await persistProfile(cleanProfile, showInDirectory);
     setFeedback({ type: "success", message: "Your profile changes have been saved." });
   }
 
@@ -186,7 +208,8 @@ export default function Account() {
             </CardContent>
           </Card>
           {feedback && <p role={feedback.type === "error" ? "alert" : "status"} className={feedback.type === "error" ? "text-sm text-destructive" : "text-sm text-emerald-600"}>{feedback.message}</p>}
-          {editOpen && <EditProfile isOpen onClose={() => setEditOpen(false)} initialData={profile} email={user.email ?? ""} role={role ?? "member"} onSave={handleModalSave} />}
+          <div className="space-y-3 rounded-2xl border border-border p-4"><DirectoryVisibilityControl checked={directoryVisible} onChange={setDirectoryVisible} disabled={saving} /><div className="flex justify-end"><Button type="button" variant="outline" onClick={() => void handleModalSave(profile, directoryVisible).then(() => setFeedback({ type: "success", message: "Directory visibility saved." })).catch((error) => setFeedback({ type: "error", message: error instanceof Error ? error.message : "Could not update directory visibility." }))} disabled={saving}>{saving ? "Saving…" : "Save visibility"}</Button></div></div>
+          {editOpen && <EditProfile isOpen onClose={() => setEditOpen(false)} initialData={profile} initialDirectoryVisible={directoryVisible} email={user.email ?? ""} role={role ?? "member"} onSave={handleModalSave} />}
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -204,6 +227,8 @@ export default function Account() {
               <div className="space-y-2 md:col-span-2"><Label htmlFor="profile-interests">Web3 interests</Label><Input id="profile-interests" value={profile.interests} onChange={(event) => updateField("interests", event.target.value)} placeholder="DeFi, NFTs, DAOs, gaming…" maxLength={500} /></div>
             </CardContent>
           </Card>
+
+          <DirectoryVisibilityControl checked={directoryVisible} onChange={setDirectoryVisible} disabled={saving} />
 
           <Card>
             <CardHeader><div className="flex items-center gap-2"><UsersRound className="size-5 text-primary" /><CardTitle>Connect with the community</CardTitle></div><CardDescription>Add links you’re comfortable sharing. All links are optional.</CardDescription></CardHeader>
