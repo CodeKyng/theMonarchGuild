@@ -1,7 +1,5 @@
-function MemberLayout() {
-  return (
-    <div>MemberLayout</div>
-  )
-}
+import WorkspaceLayout from "./WorkspaceLayout";
 
-export default MemberLayout
+export default function MemberLayout() {
+  return <WorkspaceLayout role="member" />;
+}

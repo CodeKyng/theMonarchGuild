@@ -49,6 +49,7 @@ export default function Bento1({ className }: Bento1Props) {
 
   return (
     <section
+      id="opportunities"
       className={cn(
         'bg-background flex h-full w-full items-center justify-center px-4 py-12 font-sans antialiased',
         className,
@@ -86,7 +87,7 @@ export default function Bento1({ className }: Bento1Props) {
                       Join In
                     </span>
                     <span className="text-muted-foreground text-xs font-medium">
-                      Create an account!
+                      Join the Web3 community.
                     </span>
                   </div>
                 </motion.div>
@@ -117,7 +118,7 @@ export default function Bento1({ className }: Bento1Props) {
                       Onboarding
                     </span>
                     <span className="text-muted-foreground text-xs font-medium">
-                      Be a team member with a role!
+                      Share your skills and interests.
                     </span>
                   </div>
                 </motion.div>
@@ -148,7 +149,7 @@ export default function Bento1({ className }: Bento1Props) {
                       Be known
                     </span>
                     <span className="text-muted-foreground text-xs font-medium">
-                      Join and Participate in the community!
+                      Connect, contribute, and grow together.
                     </span>
                   </div>
                 </motion.div>
@@ -171,7 +172,7 @@ export default function Bento1({ className }: Bento1Props) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
-                        Grow Efficiently
+                        Grow with the community
                       </span>
                     </motion.div>
                     
@@ -181,7 +182,7 @@ export default function Bento1({ className }: Bento1Props) {
                       animate={hoveredCard === 1 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
                       transition={{ type: "spring", delay: hoveredCard === 1 ? 1.8 : 0 }}
                     >
-                      Gain experience
+                      Build your network
                     </motion.div>
                   </div>
                 </motion.div>
@@ -194,7 +195,7 @@ export default function Bento1({ className }: Bento1Props) {
                 <GitMerge className="size-6 text-indigo-500" />
               </h3>
               <p className="text-muted-foreground max-w-lg text-base text-balance">
-                Sharpen Your Craft. Build In Public.
+                Share your work, learn from others, and build in public.
               </p>
             </div>
           </div>
@@ -210,10 +211,10 @@ export default function Bento1({ className }: Bento1Props) {
           >
             <div className="relative z-10 flex flex-col gap-2">
               <h3 className="text-foreground flex items-center gap-2 text-2xl font-semibold">
-                Get Jobs
+                Discover opportunities
               </h3>
               <p className="text-muted-foreground mt-1 text-sm font-medium">
-                Opportunities Find You When You're In The Guild.
+                Meet people, share what you can do, and keep an eye out for Web3 jobs and gigs shared by the community.
               </p>
             </div>
 
@@ -323,10 +324,10 @@ export default function Bento1({ className }: Bento1Props) {
                 <Users className="size-6 fill-blue-500/20 text-blue-500" />
               </h3>
               <p className="text-muted-foreground max-w-lg text-base text-balance">
-                Alone You Hustle. Together You Reign.
+                Share knowledge, find collaborators, and make progress together.
               </p>
               <Link to="/signup" ><button className="bg-foreground text-background mt-4 rounded-lg px-6 py-2.5 text-sm font-semibold shadow-[inset_0_0_0_2px_rgba(255,255,255,1),0px_0px_0px_1px_rgba(0,0,0,0.08),0px_1px_2px_-1px_rgba(0,0,0,0.08),0px_2px_4px_0px_rgba(0,0,0,0.06)] transition-transform hover:opacity-90 active:scale-[0.96]">
-                Join Us
+                Join the guild
               </button></Link>
             </div>
 

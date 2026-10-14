@@ -18,22 +18,22 @@ function HeroSection() {
       </video>
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-gradient-to-r from-black/85 via-black/55 to-black/25"
+        className="absolute inset-0 -z-10 bg-gradient-to-r from-black/75 via-black/45 to-black/15"
       />
       <div className="flex min-h-[min(760px,100svh)] flex-1 flex-col">
         <Header />
         <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-5 py-16 text-white sm:px-8 sm:py-20 lg:px-12">
           <div className="max-w-4xl">
             <p className="mb-4 text-sm font-semibold tracking-[0.2em] text-amber-300 sm:text-base">
-              Join our Guild.
+              THE WEB3 COMMUNITY FOR BUILDERS
             </p>
             <h1 className="max-w-4xl text-[clamp(2.75rem,8vw,6.5rem)] font-bold leading-[0.96] tracking-tight">
-              Own. Battle. Create.
-              <span className="block text-white/75">Mint your Arena.</span>
+              Find your people.
+              <span className="block text-white/75">Build what’s next.</span>
             </h1>
             <p className="mt-5 max-w-xl text-sm leading-6 text-white/75 sm:mt-7 sm:text-lg sm:leading-8">
-              A home for players, creators, and collectors to compete and build
-              together.
+              The Monarch Guild brings Web3 jobbers and enthusiasts together to
+              share knowledge, discover opportunities, and grow together.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3 sm:mt-10">
               <Link

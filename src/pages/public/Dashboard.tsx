@@ -1,4 +1,4 @@
-import { ArrowRight, Crown } from "lucide-react";
+import { ArrowRight, UsersRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import EventCard from "@/components/event-card";
 import HeroSection from "@/components/layout/HeroSection";
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import Bento1 from "@/components/watermelon/bento-01";
 import { MinimalCarousel } from "@/components/minimal-carousel";
+import { Faq1 } from "@/components/ui/faq-1";
 
 function Dashboard() {
   return (
@@ -25,15 +26,15 @@ function Dashboard() {
         >
           <div className="max-w-3xl">
             <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.24em] text-amber-300 sm:text-sm">
-              <Crown className="size-4" aria-hidden="true" />
+              <UsersRound className="size-4" aria-hidden="true" />
               The Monarch Guild
             </p>
             <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-              Where players become part of the story.
+              Web3 moves forward when we grow together.
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-white/60 sm:text-base sm:leading-7">
-              Compete, create, and connect with a community built around
-              ownership and shared adventures.
+              Meet people building in Web3, exchange what you know, and find
+              your next opportunity to learn, contribute, and earn.
             </p>
           </div>
           <Link
@@ -55,33 +56,37 @@ function Dashboard() {
             <div className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-amber-300 sm:text-sm">
-                  Gather with the guild
+                  Learn, connect, move forward
                 </p>
                 <h2
                   id="events-heading"
                   className="text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl"
                 >
-                  Events & experiences
+                  Guild events and meetups
                 </h2>
               </div>
               <p className="max-w-lg text-sm leading-6 text-white/55 sm:text-right">
-                Explore the full event calendar and find your next reason to
-                join us.
+                Find the dates, locations, and details for events shared by the
+                guild. New events appear here when they are announced.
               </p>
             </div>
             <EventCard />
           </div>
         </section>
 
+        <Bento1 />
+        <MinimalCarousel />
+        <Faq1 />
+
         <section className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
           <Card className="border-amber-200/15 bg-gradient-to-br from-amber-400/10 to-white/[0.03] text-white shadow-none">
             <CardHeader className="p-5 sm:p-8">
               <CardTitle className="text-xl sm:text-2xl">
-                Your next adventure is waiting.
+                Your next Web3 connection could change everything.
               </CardTitle>
               <CardDescription className="max-w-2xl text-sm leading-6 text-white/60 sm:text-base">
-                Create an account to meet the community and take your first
-                step into the Monarch Guild.
+                Join the Monarch Guild to meet fellow builders, share your
+                skills, and grow alongside the community.
               </CardDescription>
             </CardHeader>
             <CardContent className="px-5 pb-5 sm:px-8 sm:pb-8">
@@ -92,18 +97,16 @@ function Dashboard() {
                     "w-full bg-amber-400 text-black hover:bg-amber-300 sm:w-auto",
                 })}
               >
-                Create your account <ArrowRight className="size-4" />
+                Join the community <ArrowRight className="size-4" />
               </Link>
             </CardContent>
           </Card>
         </section>
-        <Bento1 />
-        <MinimalCarousel />
 
       </main>
 
       <footer className="border-t border-white/10 px-4 py-6 text-center text-xs text-white/40 sm:px-6">
-        © 2026 The Monarch Guild. Own. Battle. Create.
+        © 2026 The Monarch Guild. Connect. Contribute. Grow.
       </footer>
     </div>
   );

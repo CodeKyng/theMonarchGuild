@@ -54,7 +54,8 @@ export default function SocialAuthButtons() {
       }
 
       const profile = await getDoc(userRef);
-      const role = profile.data()?.role;
+      const profileData = profile.data();
+      const role = profileData?.role;
 
       if (
         role !== "admin" &&
@@ -66,7 +67,20 @@ export default function SocialAuthButtons() {
         return;
       }
 
-      navigate(`/${role}`, { replace: true });
+      const hasNonEmptyValue = (value: unknown) =>
+        typeof value === "string"
+          ? value.trim().length > 0
+          : typeof value === "number"
+            ? Number.isFinite(value)
+            : false;
+      const hasJobDetails = [
+        profileData?.professionalTitle,
+        profileData?.workType,
+        profileData?.experienceYears,
+        profileData?.skills,
+        profileData?.location,
+      ].every(hasNonEmptyValue);
+      navigate(hasJobDetails ? `/${role}` : `/${role}/account`, { replace: true });
     } catch (err) {
       console.error("Social sign-in failed:", err);
 

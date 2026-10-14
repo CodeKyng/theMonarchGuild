@@ -307,7 +307,7 @@ export default function EventCard() {
   if (events.length === 0) {
     return (
       <p className="py-12 text-center text-muted-foreground">
-        No events have been added yet.
+        No community events have been announced yet. Check back for updates.
       </p>
     );
   }

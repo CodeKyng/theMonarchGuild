@@ -1,0 +1,87 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{userId} {
+      allow create: if isOwner(userId)
+        && request.resource.data.role == 'member';
+      allow read: if isOwner(userId) || isAdmin();
+      allow update: if isAdmin() || (
+        isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'displayName', 'professionalTitle', 'workType', 'experienceYears',
+          'skills', 'location', 'bio', 'interests', 'websiteUrl',
+          'linkedinUrl', 'githubUrl', 'twitterUrl', 'discordHandle'
+        ])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 100
+        && request.resource.data.professionalTitle is string
+        && request.resource.data.professionalTitle.size() <= 180
+        && request.resource.data.workType is string
+        && request.resource.data.workType.size() <= 100
+        && request.resource.data.experienceYears is string
+        && request.resource.data.experienceYears.size() <= 3
+        && request.resource.data.skills is string
+        && request.resource.data.skills.size() <= 500
+        && request.resource.data.location is string
+        && request.resource.data.location.size() <= 180
+        && request.resource.data.bio is string
+        && request.resource.data.bio.size() <= 1000
+        && request.resource.data.interests is string
+        && request.resource.data.interests.size() <= 500
+        && request.resource.data.websiteUrl is string
+        && request.resource.data.websiteUrl.size() <= 180
+        && request.resource.data.linkedinUrl is string
+        && request.resource.data.linkedinUrl.size() <= 180
+        && request.resource.data.githubUrl is string
+        && request.resource.data.githubUrl.size() <= 180
+        && request.resource.data.twitterUrl is string
+        && request.resource.data.twitterUrl.size() <= 180
+        && request.resource.data.discordHandle is string
+        && request.resource.data.discordHandle.size() <= 100
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow create: if isAdmin()
+        && request.resource.data.createdBy == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    match /earnings/{earningId} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin()
+        && request.resource.data.amount is number
+        && request.resource.data.amount >= 0
+        && request.resource.data.currency is string
+        && request.resource.data.earnedAt is timestamp
+        && request.resource.data.userId is string;
+      allow delete: if isAdmin();
+    }
+
+    match /jobAcquisitions/{acquisitionId} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin()
+        && request.resource.data.userId is string
+        && request.resource.data.jobId is string
+        && request.resource.data.acquiredAt is timestamp;
+      allow delete: if isAdmin();
+    }
+  }
+}

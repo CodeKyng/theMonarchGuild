@@ -32,15 +32,15 @@ function Header() {
           <Link className="text-sm font-semibold text-white/80 transition hover:text-white" to="/">
             Home
           </Link>
-          <Link className="text-sm font-semibold text-white/80 transition hover:text-white" to="/marketplace">
-            Marketplace
-          </Link>
+          <a className="text-sm font-semibold text-white/80 transition hover:text-white" href="#guild">
+            About
+          </a>
           <a className="text-sm font-semibold text-white/80 transition hover:text-white" href="#events">
             Events
           </a>
-          <Link className="text-sm font-semibold text-white/80 transition hover:text-white" to="/">
-            Resources
-          </Link>
+          <a className="text-sm font-semibold text-white/80 transition hover:text-white" href="#opportunities">
+            Opportunities
+          </a>
         </nav>
         <div className="hidden lg:block">
           <Link
@@ -82,15 +82,15 @@ function Header() {
           <Link className="block rounded-lg px-3 py-3 text-sm font-semibold hover:bg-white/10" to="/" onClick={closeMenu}>
             Home
           </Link>
-          <Link className="block rounded-lg px-3 py-3 text-sm font-semibold hover:bg-white/10" to="/marketplace" onClick={closeMenu}>
-            Marketplace
-          </Link>
+          <a className="block rounded-lg px-3 py-3 text-sm font-semibold hover:bg-white/10" href="#guild" onClick={closeMenu}>
+            About
+          </a>
           <a className="block rounded-lg px-3 py-3 text-sm font-semibold hover:bg-white/10" href="#events" onClick={closeMenu}>
             Events
           </a>
-          <Link className="block rounded-lg px-3 py-3 text-sm font-semibold hover:bg-white/10" to="/" onClick={closeMenu}>
-            Resources
-          </Link>
+          <a className="block rounded-lg px-3 py-3 text-sm font-semibold hover:bg-white/10" href="#opportunities" onClick={closeMenu}>
+            Opportunities
+          </a>
         </nav>
       )}
     </header>

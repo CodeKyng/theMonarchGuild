@@ -23,39 +23,39 @@ interface MinimalCarouselProps {
 const defaultCards: CarouselCard[] = [
   {
     id: "nfts",
-    title: "Guild NFTs",
-    value: "Own your legend",
+    title: "NFTs & digital ownership",
+    value: "Explore the ecosystem",
     image:
       "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1600&q=85",
     imageAlt: "Colorful digital abstract art representing collectible NFTs",
-    description: "Collect one of a kind pieces and carry your story across the guild.",
+    description: "Learn how digital ownership works and connect with people building across Web3.",
   },
   {
     id: "merch",
     title: "Guild Merch",
-    value: "Wear your colors",
+    value: "Show your community",
     image:
       "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1600&q=85",
     imageAlt: "Fashion model wearing contemporary streetwear",
-    description: "Rep the Monarch Guild with apparel made for the journey.",
+    description: "Shared identity can bring people together. Guild updates will share details about official merchandise.",
   },
   {
     id: "tokens",
     title: "Guild Tokens",
-    value: "Power the game",
+    value: "Understand onchain tools",
     image:
       "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=1600&q=85",
     imageAlt: "Golden cryptocurrency coin on a dark surface",
-    description: "Put your tokens to work in the experiences you help shape.",
+    description: "Explore token based projects thoughtfully and learn from others in the Web3 community.",
   },
   {
     id: "community",
-    title: "Our Community",
-    value: "Better together",
+    title: "Web3 community",
+    value: "Build your network",
     image:
       "https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=1600&q=85",
     imageAlt: "Friends gathering together at an outdoor celebration",
-    description: "Meet your people, share ideas, and make the next adventure happen.",
+    description: "Meet jobbers, builders, and enthusiasts to exchange knowledge and grow together.",
   },
 ];
 
@@ -81,9 +81,9 @@ export const MinimalCarousel = ({
         <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-amber-300 sm:text-sm">
-              Discover the guild
+              A community with room to grow
             </p>
-            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Made for your next chapter.</h2>
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Find your way forward in Web3.</h2>
           </div>
           <div className="flex items-center gap-2 self-start sm:self-auto">
             <span className="mr-2 text-sm tabular-nums text-white/50">{String(activeIndex + 1).padStart(2, "0")} / {String(cards.length).padStart(2, "0")}</span>

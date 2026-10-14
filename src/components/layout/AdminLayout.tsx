@@ -1,7 +1,5 @@
-function AdminLayout() {
-  return (
-    <div>AdminLayout</div>
-  )
-}
+import WorkspaceLayout from "./WorkspaceLayout";
 
-export default AdminLayout
+export default function AdminLayout() {
+  return <WorkspaceLayout role="admin" />;
+}

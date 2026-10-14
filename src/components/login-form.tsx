@@ -1,80 +1,86 @@
-import { cn } from "cn"
+import { cn } from "cn";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
-import { Button } from "@/components/ui/button"
+import { useAuth } from "@/auth/AuthContext";
+import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Link, Navigate, useNavigate } from "react-router-dom"
-import { useState, type FormEvent } from "react"
-import { useAuth } from "@/auth/AuthContext"
-import { signInWithEmailAndPassword } from "firebase/auth"
-import { doc, getDoc } from "firebase/firestore"
-import { auth, db } from "../firebase"
-import SocialAuthButtons from "./social-auth"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { auth, db } from "../firebase";
+import SocialAuthButtons from "./social-auth";
+
+interface LoginValues {
+  email: string;
+  password: string;
+}
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const { user, role, loading } = useAuth()
-  const navigate = useNavigate()
+  const { user, role, loading } = useAuth();
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginValues>({
+    mode: "onBlur",
+    defaultValues: { email: "", password: "" },
+  });
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [submitting, setSubmitting] = useState(false)
+  if (loading) return <p>Loading...</p>;
+  if (user && role) return <Navigate to={`/${role}`} replace />;
+  if (user && !role) return <Navigate to="/access-denied" replace />;
 
-  if (loading) return <p>Loading...</p>
-
-  if (user && role) {
-    return <Navigate to={`/${role}`} replace />
-  }
-
-  if (user && !role) {
-    return <Navigate to="/access-denied" replace />
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setError("")
-    setSubmitting(true)
+  const onSubmit: SubmitHandler<LoginValues> = async ({ email, password }) => {
+    clearErrors("root.server");
 
     try {
-      const credential = await signInWithEmailAndPassword(auth, email, password)
+      const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
+      const snapshot = await getDoc(doc(db, "users", credential.user.uid));
+      const userRole = snapshot.data()?.role;
 
-      const snapshot = await getDoc(doc(db, "users", credential.user.uid))
-
-      const userRole = snapshot.data()?.role
-
-      if (
-        !snapshot.exists() ||
-        !["admin", "staff", "member"].includes(userRole)
-      ) {
-        await auth.signOut()
-        setError("Your account has no valid role. Contact support.")
-        return
+      if (!snapshot.exists() || !["admin", "staff", "member"].includes(userRole)) {
+        await auth.signOut();
+        setError("root.server", {
+          type: "server",
+          message: "Your account has no valid role. Contact support.",
+        });
+        return;
       }
 
-      navigate(`/${userRole}`, { replace: true })
+      navigate(`/${userRole}`, { replace: true });
     } catch {
-      setError("Login failed. Check your email and password.")
-    } finally {
-      setSubmitting(false)
+      setError("root.server", {
+        type: "server",
+        message: "Login failed. Check your email and password.",
+      });
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+    >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">Login to your account</h1>
           <p className="text-sm text-balance text-muted-foreground">
-            Enter your email below to login to your account
+            Sign in to continue with your Web3 community.
           </p>
         </div>
         <Field>
@@ -83,11 +89,15 @@ export function LoginForm({
             id="email"
             type="email"
             placeholder="m@example.com"
-            required
-            autoComplete="username"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            autoComplete="email"
+            aria-invalid={Boolean(errors.email)}
+            {...register("email", {
+              required: "Please enter your email address.",
+              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address." },
+              setValueAs: (value: string) => value.trim(),
+            })}
           />
+          {errors.email && <FieldDescription role="alert" className="text-destructive">{errors.email.message}</FieldDescription>}
         </Field>
         <Field>
           <div className="flex items-center">
@@ -102,18 +112,18 @@ export function LoginForm({
           <Input
             id="password"
             type="password"
-            required
             autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            aria-invalid={Boolean(errors.password)}
+            {...register("password", { required: "Please enter your password." })}
           />
+          {errors.password && <FieldDescription role="alert" className="text-destructive">{errors.password.message}</FieldDescription>}
         </Field>
         <Field>
-          <Button type="submit" disabled={submitting}>
-            {submitting ? "Signing in..." : "Log In"}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Signing in..." : "Log In"}
           </Button>
         </Field>
-        {error && <p role="alert" className="text-red-600 text-lg">{error}</p>}
+        {errors.root?.server && <p role="alert" className="text-lg text-red-600">{errors.root.server.message}</p>}
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>
           <SocialAuthButtons />
@@ -126,5 +136,5 @@ export function LoginForm({
         </Field>
       </FieldGroup>
     </form>
-  )
+  );
 }

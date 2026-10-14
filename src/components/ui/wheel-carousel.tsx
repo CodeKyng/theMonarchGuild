@@ -146,10 +146,9 @@ export function WheelCarousel({
   const reduceMotion = useReducedMotion() ?? false;
   const instanceId = useId();
   const { resolvedTheme } = useTheme();
-  const [themeReady, setThemeReady] = useState(false);
   const resolvedMode =
     mode === "system"
-      ? themeReady && resolvedTheme === "dark"
+      ? resolvedTheme === "dark"
         ? "dark"
         : "light"
       : mode;
@@ -168,8 +167,6 @@ export function WheelCarousel({
   const dragOriginRef = useRef({ y: 0, rotation: startingIndex });
   const previousDragRotationRef = useRef(startingIndex);
   const frameRef = useRef<number | null>(null);
-
-  useEffect(() => setThemeReady(true), []);
 
   useEffect(() => {
     const normalizedIndex = wrapIndex(selectedRef.current, itemCount);
@@ -232,7 +229,9 @@ export function WheelCarousel({
   );
 
   const commitRotationRef = useRef(commitRotation);
-  commitRotationRef.current = commitRotation;
+  useEffect(() => {
+    commitRotationRef.current = commitRotation;
+  }, [commitRotation]);
 
   const runAnimation = useCallback(() => {
     if (frameRef.current !== null) return;
