@@ -11,13 +11,33 @@ const roleLabels: Record<UserRole, string> = {
   member: "Guild member",
 };
 
+const adminPageTitles: Record<string, string> = {
+  "/admin": "Overview",
+  "/admin/analytics": "Analytics",
+  "/admin/members": "Members",
+  "/admin/staff-management": "Staff Management",
+  "/admin/roles-permissions": "Roles & Permissions",
+  "/admin/community-content": "Community & Content",
+  "/admin/projects": "Projects",
+  "/admin/opportunities": "Opportunities",
+  "/admin/events": "Events",
+  "/admin/learning-management": "Learning Management",
+  "/admin/reports-moderation": "Reports & Moderation",
+  "/admin/support": "Support",
+  "/admin/reputation-rewards": "Reputation & Rewards",
+  "/admin/audit-logs": "Audit Logs",
+  "/admin/security-center": "Security Center",
+  "/admin/integrations": "Integrations",
+  "/admin/platform-settings": "Platform Settings",
+};
+
 export default function WorkspaceHeader({ role }: { role: UserRole }) {
   const { user } = useAuth();
   const location = useLocation();
   
   const name = user?.displayName?.trim() || user?.email || roleLabels[role];
-  const pageTitle = role === "admin" && location.pathname === "/admin/analytics"
-    ? "Analytics"
+  const pageTitle = role === "admin"
+    ? adminPageTitles[location.pathname] ?? "Admin workspace"
     : roleLabels[role];
   
 

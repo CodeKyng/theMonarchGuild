@@ -113,7 +113,7 @@ export default function AdminUsers() {
       <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-medium text-amber-700 dark:text-amber-300">Guild administration</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">Users</h1>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">Members</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">Browse member profiles, understand the skills across your community, and manage workspace roles.</p>
         </div>
         <div className="flex gap-2">

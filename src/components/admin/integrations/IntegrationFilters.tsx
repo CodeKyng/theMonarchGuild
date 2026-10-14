@@ -1,0 +1,7 @@
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+export default function IntegrationFilters({ search, category, onSearch, onCategory }: { search: string; category: string; onSearch: (value: string) => void; onCategory: (value: string) => void }) {
+  return <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="font-semibold">Integration inventory</h2><p className="mt-1 text-sm text-muted-foreground">Explore services currently referenced by the application.</p></div><div className="grid gap-2 sm:grid-cols-[minmax(12rem,1fr)_11rem] sm:min-w-[26rem]"><div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" /><Input value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Search integrations…" aria-label="Search integrations" className="pl-9" /></div><Select value={category} onValueChange={(value) => onCategory(value ?? "all")}><SelectTrigger aria-label="Filter by category" className="bg-background"><SelectValue placeholder="All categories" /></SelectTrigger><SelectContent><SelectItem value="all">All categories</SelectItem><SelectItem value="Core platform">Core platform</SelectItem><SelectItem value="Authentication">Authentication</SelectItem></SelectContent></Select></div></div>;
+}

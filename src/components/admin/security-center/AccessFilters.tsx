@@ -1,0 +1,7 @@
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+export default function AccessFilters({ search, role, onSearch, onRole }: { search: string; role: string; onSearch: (value: string) => void; onRole: (value: string) => void }) {
+  return <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="font-semibold">Account access</h2><p className="mt-1 text-sm text-muted-foreground">Review accounts with administrative and staff privileges.</p></div><div className="grid gap-2 sm:grid-cols-[minmax(12rem,1fr)_10rem] sm:min-w-[25rem]"><div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" /><Input value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Search accounts…" aria-label="Search security accounts" className="pl-9" /></div><Select value={role} onValueChange={(value) => onRole(value ?? "all")}><SelectTrigger aria-label="Filter accounts by role" className="bg-background"><SelectValue placeholder="All roles" /></SelectTrigger><SelectContent><SelectItem value="all">All roles</SelectItem><SelectItem value="admin">Admins</SelectItem><SelectItem value="staff">Staff</SelectItem><SelectItem value="member">Members</SelectItem><SelectItem value="unassigned">Unassigned</SelectItem></SelectContent></Select></div></div>;
+}

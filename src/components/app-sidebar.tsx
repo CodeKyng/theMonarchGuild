@@ -1,5 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { BarChart3, Crown, Home, LayoutDashboard, UsersRound, type LucideIcon } from "lucide-react";
+import {
+  Activity, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined,
+  ClipboardList, Flag, FolderKanban, Gift, GraduationCap, Home,
+  LayoutDashboard, LifeBuoy, Plug, Settings2, ShieldCheck, ShieldEllipsis,
+  UsersRound, type LucideIcon,
+} from "lucide-react";
 
 import type { UserRole } from "@/auth/AuthContext";
 import {
@@ -34,10 +39,35 @@ const rolePaths: Record<UserRole, string> = {
 export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const location = useLocation();
   const dashboardPath = rolePaths[role];
-  const links: { label: string; href: string; icon: LucideIcon }[] = [
+  const adminGroups: { label: string; links: { label: string; href: string; icon: LucideIcon }[] }[] = [
+    { label: "Workspace", links: [
+      { label: "Overview", href: "/admin", icon: LayoutDashboard },
+      { label: "Members", href: "/admin/members", icon: UsersRound },
+      { label: "Staff Management", href: "/admin/staff-management", icon: BriefcaseBusiness },
+      { label: "Roles & Permissions", href: "/admin/roles-permissions", icon: ShieldCheck },
+    ] },
+    { label: "Community & Content", links: [
+      { label: "Community & Content", href: "/admin/community-content", icon: Activity },
+      { label: "Projects", href: "/admin/projects", icon: FolderKanban },
+      { label: "Opportunities", href: "/admin/opportunities", icon: BriefcaseBusiness },
+      { label: "Events", href: "/admin/events", icon: CalendarDays },
+      { label: "Learning Management", href: "/admin/learning-management", icon: GraduationCap },
+    ] },
+    { label: "Operations", links: [
+      { label: "Reports & Moderation", href: "/admin/reports-moderation", icon: Flag },
+      { label: "Support", href: "/admin/support", icon: LifeBuoy },
+      { label: "Analytics", href: "/admin/analytics", icon: ChartNoAxesCombined },
+      { label: "Reputation & Rewards", href: "/admin/reputation-rewards", icon: Gift },
+    ] },
+    { label: "Governance", links: [
+      { label: "Audit Logs", href: "/admin/audit-logs", icon: ClipboardList },
+      { label: "Security Center", href: "/admin/security-center", icon: ShieldEllipsis },
+      { label: "Integrations", href: "/admin/integrations", icon: Plug },
+      { label: "Platform Settings", href: "/admin/platform-settings", icon: Settings2 },
+    ] },
+  ];
+  const basicLinks = [
     { label: "Overview", href: dashboardPath, icon: LayoutDashboard },
-    ...(role === "admin" ? [{ label: "Analytics", href: "/admin/analytics", icon: BarChart3 }] : []),
-    ...(role === "admin" ? [{ label: "Users", href: "/admin/users", icon: UsersRound }] : []),
     { label: "Guild home", href: "/", icon: Home },
   ];
 
@@ -47,8 +77,8 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" render={<Link to={dashboardPath} />}>
-              <div className="flex size-9 items-center justify-center rounded-xl bg-amber-400 text-black">
-                <Crown className="size-5" aria-hidden="true" />
+              <div className="flex size-9 items-center justify-center rounded-xl text-black">
+                <img src="theMonarchGuildLogo.png" className="size-9" aria-hidden="true" />
               </div>
               <div className="flex min-w-0 flex-col gap-0.5 leading-none">
                 <span className="truncate font-semibold">The Monarch Guild</span>
@@ -60,13 +90,14 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+        {(role === "admin" ? adminGroups : [{ label: "Workspace", links: basicLinks }]).map((group) => (
+        <SidebarGroup key={group.label}>
+          <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
           <SidebarMenu>
-            {links.map(({ label, href, icon: Icon }) => (
+            {group.links.map(({ label, href, icon: Icon }) => (
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
-                  isActive={location.pathname === href}
+                  isActive={location.pathname === href || (href !== "/admin" && location.pathname.startsWith(`${href}/`))}
                   tooltip={label}
                   render={<Link to={href} />}
                 >
@@ -77,6 +108,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+        ))}
       </SidebarContent>
 
       <SidebarFooter className="px-4 py-3">

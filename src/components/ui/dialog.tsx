@@ -26,7 +26,12 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
   );
 }
 
-function DialogContent({ className, children, ...props }: DialogPrimitive.Popup.Props) {
+function DialogContent({
+  className,
+  scrollAreaClassName,
+  children,
+  ...props
+}: DialogPrimitive.Popup.Props & { scrollAreaClassName?: string }) {
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -35,7 +40,7 @@ function DialogContent({ className, children, ...props }: DialogPrimitive.Popup.
         className={cn("fixed left-1/2 top-1/2 z-50 max-h-[calc(100svh-2rem)] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-background p-3 text-foreground shadow-2xl outline-none data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0 sm:p-3", className)}
         {...props}
       >
-        <ScrollArea className="max-h-[calc(100svh-3.5rem)] px-3 py-3 sm:px-4">
+        <ScrollArea className={cn("max-h-[calc(100svh-3.5rem)] px-3 py-3 sm:px-4", scrollAreaClassName)}>
           <div className="grid gap-4">{children}</div>
         </ScrollArea>
         <DialogPrimitive.Close
