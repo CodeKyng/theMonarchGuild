@@ -1,0 +1,9 @@
+import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+export default function StaffMemberFilters({ search, workType, workTypes, onSearch, onWorkType, onClear }: { search: string; workType: string; workTypes: string[]; onSearch: (value: string) => void; onWorkType: (value: string) => void; onClear: () => void }) {
+  const filtered = search.trim().length > 0 || workType !== "all";
+  return <div className="flex flex-col gap-4 rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-5"><div><h2 className="font-semibold">Guild directory</h2><p className="mt-1 text-sm text-muted-foreground">Search by member name, professional focus, skills, interests, or location.</p></div><div className="flex flex-col gap-2 sm:flex-row"><div className="relative min-w-0 flex-1"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" /><Input value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Search people, skills, or places" aria-label="Search guild members" className="bg-background pl-9" /></div><Select value={workType} onValueChange={(value) => onWorkType(value ?? "all")}><SelectTrigger className="w-full bg-background sm:w-52" aria-label="Filter members by work type"><SlidersHorizontal className="size-4 text-muted-foreground" aria-hidden="true" /><SelectValue placeholder="All work types" /></SelectTrigger><SelectContent><SelectItem value="all">All work types</SelectItem>{workTypes.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent></Select>{filtered && <Button type="button" variant="ghost" onClick={onClear} className="shrink-0"><X className="size-4" aria-hidden="true" />Clear filters</Button>}</div></div>;
+}

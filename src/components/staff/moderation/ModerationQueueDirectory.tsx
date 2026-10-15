@@ -1,0 +1,12 @@
+import { FileSearch, SearchX } from "lucide-react";
+import type { ModerationReport } from "@/components/admin/reports-moderation/types";
+import { Card, CardContent } from "@/components/ui/card";
+import ModerationReportCard from "./ModerationReportCard";
+import StaffModerationFilters from "./StaffModerationFilters";
+
+export default function ModerationQueueDirectory({ reports, allReports, loading, search, status, severity, onSearch, onStatus, onSeverity, onClear, onOpen }: { reports: ModerationReport[]; allReports: ModerationReport[]; loading: boolean; search: string; status: string; severity: string; onSearch: (value: string) => void; onStatus: (value: string) => void; onSeverity: (value: string) => void; onClear: () => void; onOpen: (report: ModerationReport) => void }) {
+  const filtered = Boolean(search.trim() || status !== "all" || severity !== "all");
+  return <Card className="border-border/70 shadow-sm"><CardContent className="space-y-5 p-4 sm:p-6"><StaffModerationFilters search={search} status={status} severity={severity} onSearch={onSearch} onStatus={onStatus} onSeverity={onSeverity} onClear={onClear} />
+    {loading && allReports.length === 0 ? <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" role="status" aria-label="Loading moderation queue">{[0, 1, 2, 3, 4, 5].map((index) => <div key={index} className="h-64 animate-pulse rounded-2xl bg-muted" />)}</div> : reports.length ? <><p className="text-xs text-muted-foreground">Showing {reports.length} of {allReports.length} reports</p><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{reports.map((report) => <ModerationReportCard key={report.id} report={report} onOpen={onOpen} />)}</div></> : <div className="rounded-2xl border border-dashed border-border px-5 py-12 text-center">{filtered ? <SearchX className="mx-auto size-8 text-muted-foreground/60" aria-hidden="true" /> : <FileSearch className="mx-auto size-8 text-muted-foreground/60" aria-hidden="true" />}<h3 className="mt-3 font-semibold">{filtered ? "No reports match these filters" : "The moderation queue is clear"}</h3><p className="mx-auto mt-1 max-w-md text-sm leading-6 text-muted-foreground">{filtered ? "Try another search, status, or priority." : "New reports submitted to the guild will appear here for review."}</p>{filtered && <button type="button" onClick={onClear} className="mt-4 text-sm font-semibold text-primary hover:underline">Clear filters</button>}</div>}
+  </CardContent></Card>;
+}

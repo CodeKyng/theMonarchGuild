@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   Activity, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined,
-  Bell, ClipboardList, Compass, Flag, FolderKanban, Gift, GraduationCap, Home,
+  Bell, ClipboardList, Compass, Flag, FolderKanban, Gift, GraduationCap,
   LayoutDashboard, LifeBuoy, Mail, Plug, Settings2, ShieldCheck, ShieldEllipsis,
   Trophy, UserRound, UsersRound, type LucideIcon,
 } from "lucide-react";
@@ -68,10 +68,6 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       { label: "Platform Settings", href: "/admin/platform-settings", icon: Settings2 },
     ] },
   ];
-  const basicLinks = [
-    { label: "Overview", href: dashboardPath, icon: LayoutDashboard },
-    { label: "Guild home", href: "/", icon: Home },
-  ];
   const memberGroups: { label: string; links: { label: string; href: string; icon: LucideIcon }[] }[] = [
     { label: "Guild", links: [
       { label: "Overview", href: "/member", icon: LayoutDashboard },
@@ -92,6 +88,28 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       { label: "Settings", href: "/member/settings", icon: Settings2 },
     ] },
   ];
+  const staffGroups: { label: string; links: { label: string; href: string; icon: LucideIcon }[] }[] = [
+    { label: "Workspace", links: [
+      { label: "Overview", href: "/staff", icon: LayoutDashboard },
+      { label: "Assigned Tasks", href: "/staff/assigned-tasks", icon: ClipboardList },
+      { label: "Members", href: "/staff/members", icon: UsersRound },
+    ] },
+    { label: "Community", links: [
+      { label: "Moderation Queue", href: "/staff/moderation-queue", icon: Flag },
+      { label: "Reports", href: "/staff/reports", icon: ShieldCheck },
+      { label: "Content Review", href: "/staff/content-review", icon: Activity },
+      { label: "Announcements", href: "/staff/announcements", icon: Bell },
+    ] },
+    { label: "Guild Programs", links: [
+      { label: "Opportunities", href: "/staff/opportunities", icon: BriefcaseBusiness },
+      { label: "Events", href: "/staff/events", icon: CalendarDays },
+    ] },
+    { label: "Operations", links: [
+      { label: "Support Inbox", href: "/staff/support-inbox", icon: LifeBuoy },
+      { label: "Analytics", href: "/staff/analytics", icon: ChartNoAxesCombined },
+      { label: "Settings", href: "/staff/settings", icon: Settings2 },
+    ] },
+  ];
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -100,7 +118,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" render={<Link to={dashboardPath} />}>
               <div className="flex size-9 items-center justify-center rounded-xl text-black">
-                <img src="theMonarchGuildLogo.png" className="size-9" aria-hidden="true" />
+                <img src="/theMonarchGuildLogo.png" className="size-9" alt="" />
               </div>
               <div className="flex min-w-0 flex-col gap-0.5 leading-none">
                 <span className="truncate font-semibold">The Monarch Guild</span>
@@ -112,14 +130,14 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        {(role === "admin" ? adminGroups : role === "member" ? memberGroups : [{ label: "Workspace", links: basicLinks }]).map((group) => (
+        {(role === "admin" ? adminGroups : role === "member" ? memberGroups : staffGroups).map((group) => (
         <SidebarGroup key={group.label}>
           <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
           <SidebarMenu>
             {group.links.map(({ label, href, icon: Icon }) => (
               <SidebarMenuItem key={href}>
                 <SidebarMenuButton
-                  isActive={location.pathname === href || (href !== "/admin" && href !== "/member" && location.pathname.startsWith(`${href}/`))}
+                  isActive={location.pathname === href || (href !== dashboardPath && location.pathname.startsWith(`${href}/`))}
                   tooltip={label}
                   render={<Link to={href} onClick={() => { if (isMobile) setOpenMobile(false); }} />}
                 >

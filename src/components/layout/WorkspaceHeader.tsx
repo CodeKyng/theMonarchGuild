@@ -47,6 +47,22 @@ const memberPageTitles: Record<string, string> = {
   "/member/settings": "Settings",
 };
 
+const staffPageTitles: Record<string, string> = {
+  "/staff": "Overview",
+  "/staff/assigned-tasks": "Assigned Tasks",
+  "/staff/members": "Members",
+  "/staff/moderation-queue": "Moderation Queue",
+  "/staff/reports": "Reports",
+  "/staff/content-review": "Content Review",
+  "/staff/announcements": "Announcements",
+  "/staff/opportunities": "Opportunities",
+  "/staff/events": "Events",
+  "/staff/support-inbox": "Support Inbox",
+  "/staff/analytics": "Analytics",
+  "/staff/settings": "Settings",
+  "/staff/account": "Account",
+};
+
 export default function WorkspaceHeader({ role }: { role: UserRole }) {
   const { user } = useAuth();
   const location = useLocation();
@@ -56,7 +72,7 @@ export default function WorkspaceHeader({ role }: { role: UserRole }) {
     ? adminPageTitles[location.pathname] ?? "Admin workspace"
     : role === "member"
       ? memberPageTitles[location.pathname] ?? "Member workspace"
-      : roleLabels[role];
+      : staffPageTitles[location.pathname] ?? roleLabels[role];
   
 
   return (

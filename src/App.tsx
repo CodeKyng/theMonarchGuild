@@ -35,6 +35,18 @@ const MemberMessages = lazy(() => import("./pages/member/Messages"));
 const MemberNotifications = lazy(() => import("./pages/member/Notifications"));
 const MemberProfile = lazy(() => import("./pages/member/Profile"));
 const StaffDashboard = lazy(() => import("./pages/staff/Dashboard"));
+const StaffModulePage = lazy(() => import("./pages/staff/StaffModulePage"));
+const StaffAssignedTasks = lazy(() => import("./pages/staff/AssignedTasks"));
+const StaffMembers = lazy(() => import("./pages/staff/Members"));
+const StaffModerationQueue = lazy(() => import("./pages/staff/ModerationQueue"));
+const StaffReports = lazy(() => import("./pages/staff/Reports"));
+const StaffContentReview = lazy(() => import("./pages/staff/ContentReview"));
+const StaffAnnouncements = lazy(() => import("./pages/staff/Announcements"));
+const StaffOpportunities = lazy(() => import("./pages/staff/Opportunities"));
+const StaffEvents = lazy(() => import("./pages/staff/Events"));
+const StaffSupportInbox = lazy(() => import("./pages/staff/SupportInbox"));
+const StaffAnalytics = lazy(() => import("./pages/staff/Analytics"));
+const StaffSettings = lazy(() => import("./pages/staff/Settings"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminAnalytics = lazy(() => import("./pages/admin/Analytics"));
 const AdminUsers = lazy(() => import("./pages/admin/Users"));
@@ -130,6 +142,18 @@ function AppRoutes() {
         <Route path="/staff" element={<StaffLayout />}>
           <Route index element={<StaffDashboard />} />
           <Route path="account" element={<Account />} />
+          <Route path="assigned-tasks" element={<StaffAssignedTasks />} />
+          <Route path="members" element={<StaffMembers />} />
+          <Route path="moderation-queue" element={<StaffModerationQueue />} />
+          <Route path="reports" element={<StaffReports />} />
+          <Route path="content-review" element={<StaffContentReview />} />
+          <Route path="announcements" element={<StaffAnnouncements />} />
+          <Route path="opportunities" element={<StaffOpportunities />} />
+          <Route path="events" element={<StaffEvents />} />
+          <Route path="support-inbox" element={<StaffSupportInbox />} />
+          <Route path="analytics" element={<StaffAnalytics />} />
+          <Route path="settings" element={<StaffSettings />} />
+          <Route path=":section" element={<StaffModulePage />} />
         </Route>
       </Route>
 

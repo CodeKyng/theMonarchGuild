@@ -15,6 +15,26 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
+    function isStaff() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'staff';
+    }
+
+    function announcementFieldsValid(data) {
+      return data.title is string
+        && data.title.size() > 0
+        && data.title.size() <= 160
+        && data.body is string
+        && data.body.size() > 0
+        && data.body.size() <= 4000
+        && data.category in ['Guild update', 'Events', 'Opportunities', 'Community', 'Important']
+        && data.status in ['Draft', 'Scheduled', 'Published', 'Archived']
+        && (data.publishAt == null || data.publishAt is timestamp)
+        && (data.status != 'Scheduled' || (data.publishAt is timestamp && data.publishAt > request.time))
+        && (data.status != 'Published' || (data.publishAt is timestamp && data.publishAt <= request.time))
+        && (data.status == 'Scheduled' || data.status == 'Published' || data.publishAt == null);
+    }
+
     function otherConversationParticipant(participants) {
       return participants[0] == request.auth.uid ? participants[1] : participants[0];
     }
@@ -177,6 +197,76 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    match /staffTasks/{taskId} {
+      allow read: if isAdmin() || (isStaff() && resource.data.assignedTo == request.auth.uid);
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasAll([
+          'title', 'description', 'category', 'priority', 'status', 'assignedTo',
+          'assignedBy', 'assignedByName', 'dueAt', 'staffNote', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'title', 'description', 'category', 'priority', 'status', 'assignedTo',
+          'assignedBy', 'assignedByName', 'dueAt', 'staffNote', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 180
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 4000
+        && request.resource.data.category is string
+        && request.resource.data.category.size() <= 80
+        && request.resource.data.priority in ['Urgent', 'High', 'Normal', 'Low']
+        && request.resource.data.status == 'Assigned'
+        && request.resource.data.assignedTo is string
+        && request.resource.data.assignedBy == request.auth.uid
+        && request.resource.data.assignedByName is string
+        && (request.resource.data.dueAt == null || request.resource.data.dueAt is timestamp)
+        && request.resource.data.staffNote == ''
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isAdmin() || (
+        isStaff()
+        && resource.data.assignedTo == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'staffNote', 'updatedAt'
+        ])
+        && request.resource.data.status in ['Assigned', 'In progress', 'Completed']
+        && request.resource.data.staffNote is string
+        && request.resource.data.staffNote.size() <= 2000
+        && request.resource.data.updatedAt == request.time
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /reports/{reportId} {
+      allow read: if isAdmin() || isStaff();
+      allow update: if isAdmin() || (
+        isStaff()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'moderationNotes', 'updatedAt'
+        ])
+        && request.resource.data.status in ['New', 'Under review', 'Resolved', 'Dismissed']
+        && request.resource.data.moderationNotes is string
+        && request.resource.data.moderationNotes.size() <= 1500
+        && request.resource.data.updatedAt == request.time
+      );
+      allow create, delete: if isAdmin();
+    }
+
+    match /supportTickets/{ticketId} {
+      allow read: if isAdmin() || isStaff();
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'priority', 'adminReply', 'updatedAt'
+        ])
+        && request.resource.data.status in ['Open', 'In progress', 'Waiting on member', 'Resolved']
+        && request.resource.data.priority in ['Low', 'Normal', 'High', 'Urgent']
+        && request.resource.data.adminReply is string
+        && request.resource.data.adminReply.size() <= 3000
+        && request.resource.data.updatedAt == request.time;
+      allow create, delete: if false;
+    }
+
     match /events/{eventId} {
       allow read: if true;
       allow create: if isAdmin()
@@ -246,6 +336,60 @@ service cloud.firestore {
       allow delete: if isAdmin() || (
         signedIn() && resource.data.authorId == request.auth.uid
       );
+    }
+
+    match /contentReviews/{postId} {
+      allow read: if isAdmin() || isStaff();
+      allow create, update: if isAdmin() || (
+        isStaff()
+        && request.resource.data.keys().hasAll([
+          'postId', 'reviewStatus', 'moderationNotes', 'reviewedBy', 'reviewedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'postId', 'reviewStatus', 'moderationNotes', 'reviewedBy', 'reviewedAt'
+        ])
+        && request.resource.data.postId == postId
+        && request.resource.data.reviewStatus in ['Needs review', 'Reviewed', 'Follow-up needed']
+        && request.resource.data.moderationNotes is string
+        && request.resource.data.moderationNotes.size() <= 1500
+        && request.resource.data.reviewedBy == request.auth.uid
+        && request.resource.data.reviewedAt == request.time
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /announcements/{announcementId} {
+      allow read: if isAdmin() || isStaff() || (
+        signedIn()
+        && resource.data.status in ['Published', 'Scheduled']
+        && resource.data.publishAt is timestamp
+        && resource.data.publishAt <= request.time
+      );
+      allow create: if (isAdmin() || isStaff())
+        && request.resource.data.keys().hasAll([
+          'title', 'body', 'category', 'status', 'publishAt', 'createdBy',
+          'createdByName', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'title', 'body', 'category', 'status', 'publishAt', 'createdBy',
+          'createdByName', 'createdAt', 'updatedAt'
+        ])
+        && announcementFieldsValid(request.resource.data)
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdByName is string
+        && request.resource.data.createdByName.size() <= 100
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isAdmin() || (
+        isStaff()
+        && resource.data.createdBy == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'title', 'body', 'category', 'status', 'publishAt', 'updatedAt'
+        ])
+        && announcementFieldsValid(request.resource.data)
+        && request.resource.data.updatedAt == request.time
+      );
+      allow delete: if isAdmin() || (isStaff() && resource.data.createdBy == request.auth.uid);
     }
 
     match /conversations/{conversationId} {
