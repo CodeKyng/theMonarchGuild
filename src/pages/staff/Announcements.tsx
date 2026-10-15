@@ -6,7 +6,7 @@ import AnnouncementComposerDialog from "@/components/staff/announcements/Announc
 import AnnouncementDirectory from "@/components/staff/announcements/AnnouncementDirectory";
 import AnnouncementPreviewDialog from "@/components/staff/announcements/AnnouncementPreviewDialog";
 import AnnouncementSummary from "@/components/staff/announcements/AnnouncementSummary";
-import { announcementCategories, announcementStatuses, type AnnouncementCategory, type AnnouncementStatus, type GuildAnnouncement } from "@/components/staff/announcements/types";
+import { announcementCategories, announcementStatuses, type GuildAnnouncement } from "@/components/staff/announcements/types";
 import { Button } from "@/components/ui/button";
 import { db } from "@/firebase";
 

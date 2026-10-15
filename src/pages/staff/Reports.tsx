@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { Download, FileText, RefreshCw } from "lucide-react";
-import type { ModerationReport, ReportSeverity, ReportStatus } from "@/components/admin/reports-moderation/types";
+import type { ModerationReport } from "@/components/admin/reports-moderation/types";
 import { reportSeverities, reportStatuses } from "@/components/admin/reports-moderation/types";
 import ReportCategoryBreakdown from "@/components/staff/reports/ReportCategoryBreakdown";
 import StaffReportDetailsDialog from "@/components/staff/reports/StaffReportDetailsDialog";
