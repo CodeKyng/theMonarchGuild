@@ -39,6 +39,7 @@ const memberPageTitles: Record<string, string> = {
   "/member/opportunities": "Opportunities",
   "/member/learning-hub": "Learning Hub",
   "/member/events": "Events",
+  "/member/tasks": "Tasks",
   "/member/messages": "Messages",
   "/member/notifications": "Notifications",
   "/member/leaderboard": "Leaderboard",
@@ -49,6 +50,7 @@ const memberPageTitles: Record<string, string> = {
 
 const staffPageTitles: Record<string, string> = {
   "/staff": "Overview",
+  "/staff/tasks": "Tasks",
   "/staff/assigned-tasks": "Assigned Tasks",
   "/staff/members": "Members",
   "/staff/moderation-queue": "Moderation Queue",

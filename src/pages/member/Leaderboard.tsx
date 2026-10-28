@@ -71,6 +71,7 @@ export default function MemberLeaderboard() {
     try {
       const userRef = doc(db, "users", user.uid);
       const leaderboardRef = doc(db, "publicLeaderboard", user.uid);
+      const balanceRef = doc(db, "socialTaskBalances", user.uid);
       const snapshot = await getDoc(userRef);
       if (!snapshot.exists()) throw new Error("Your member profile could not be found.");
       const data = snapshot.data();
@@ -81,6 +82,12 @@ export default function MemberLeaderboard() {
       const points = asPoints(data.reputationPoints);
       const batch = writeBatch(db);
       batch.update(userRef, { showOnLeaderboard: join, showInMemberDirectory: data.showInMemberDirectory === true, reputationPoints: points });
+      batch.set(balanceRef, {
+        points,
+        displayName,
+        showOnLeaderboard: join,
+        updatedAt: serverTimestamp(),
+      });
       if (join) batch.set(leaderboardRef, { displayName, points, updatedAt: serverTimestamp() });
       else batch.delete(leaderboardRef);
       await batch.commit();

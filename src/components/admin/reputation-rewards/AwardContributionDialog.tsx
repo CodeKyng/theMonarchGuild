@@ -22,7 +22,7 @@ export default function AwardContributionDialog({ open, members, initialMember, 
     if (!title.trim()) { setError("Add a short description of the contribution."); return; }
     if (!Number.isInteger(amount) || amount < 1 || amount > 10000) { setError("Points must be a whole number from 1 to 10,000."); return; }
     setSaving(true); setError("");
-    const rewardRef = doc(collection(db, "reputationRewards")); const memberRef = doc(db, "users", member.id); const leaderboardRef = doc(db, "publicLeaderboard", member.id); const notificationRef = doc(collection(db, "users", member.id, "notifications"));
+    const rewardRef = doc(collection(db, "reputationRewards")); const memberRef = doc(db, "users", member.id); const leaderboardRef = doc(db, "publicLeaderboard", member.id); const balanceRef = doc(db, "socialTaskBalances", member.id); const notificationRef = doc(collection(db, "users", member.id, "notifications"));
     try {
       await runTransaction(db, async (transaction) => {
         const memberSnapshot = await transaction.get(memberRef);
@@ -32,6 +32,12 @@ export default function AwardContributionDialog({ open, members, initialMember, 
         const current = memberData.reputationPoints;
         const currentPoints = typeof current === "number" && Number.isFinite(current) ? current : 0;
         transaction.update(memberRef, { reputationPoints: currentPoints + amount, reputationUpdatedAt: serverTimestamp() });
+        transaction.set(balanceRef, {
+          points: currentPoints + amount,
+          displayName: typeof memberData.displayName === "string" ? memberData.displayName : member.name,
+          showOnLeaderboard: memberData.showOnLeaderboard === true,
+          updatedAt: serverTimestamp(),
+        });
         if (memberData.showOnLeaderboard === true) {
           transaction.set(leaderboardRef, { displayName: typeof memberData.displayName === "string" ? memberData.displayName : member.name, points: currentPoints + amount, updatedAt: serverTimestamp() });
         } else if (leaderboardSnapshot.exists()) {

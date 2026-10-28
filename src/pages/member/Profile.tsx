@@ -61,8 +61,15 @@ export default function MemberProfile() {
       const userRef = doc(db, "users", authenticatedUser.uid);
       const currentSnapshot = await getDoc(userRef);
       const current = currentSnapshot.data() ?? {};
+      const balanceRef = doc(db, "socialTaskBalances", authenticatedUser.uid);
       const batch = writeBatch(db);
       batch.update(userRef, { ...clean, showInMemberDirectory: showInDirectory });
+      batch.set(balanceRef, {
+        points: typeof current.reputationPoints === "number" ? Math.max(0, current.reputationPoints) : 0,
+        displayName: clean.displayName,
+        showOnLeaderboard: current.showOnLeaderboard === true,
+        updatedAt: serverTimestamp(),
+      });
       const publicRef = doc(db, "publicProfiles", authenticatedUser.uid);
       if (showInDirectory) {
         batch.set(publicRef, { displayName: clean.displayName, professionalTitle: clean.professionalTitle, workType: clean.workType, experienceYears: clean.experienceYears, skills: clean.skills.split(",").map((skill) => skill.trim()).filter(Boolean), location: clean.location, bio: clean.bio, interests: clean.interests, websiteUrl: clean.websiteUrl, linkedinUrl: clean.linkedinUrl, githubUrl: clean.githubUrl, twitterUrl: clean.twitterUrl, updatedAt: serverTimestamp() });

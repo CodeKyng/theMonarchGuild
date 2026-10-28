@@ -20,6 +20,67 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'staff';
     }
 
+    function socialTaskAwardLinked(userId, submissionId) {
+      let submissionPath = /databases/$(database)/documents/socialTaskSubmissions/$(submissionId);
+      return signedIn()
+        && submissionId is string
+        && exists(submissionPath)
+        && get(submissionPath).data.userId == userId
+        && get(submissionPath).data.status == 'Pending'
+        && getAfter(submissionPath).data.status == 'Approved'
+        && getAfter(submissionPath).data.reviewedBy == request.auth.uid
+        && getAfter(/databases/$(database)/documents/users/$(userId)).data.lastSocialTaskSubmissionId == submissionId
+        && getAfter(/databases/$(database)/documents/users/$(userId)).data.reputationPoints
+          == getAfter(/databases/$(database)/documents/socialTaskBalances/$(userId)).data.points
+        && existsAfter(/databases/$(database)/documents/reputationRewards/$(submissionId));
+    }
+
+    function staffAwardingSocialTask(userId) {
+      let submissionId = request.resource.data.lastSocialTaskSubmissionId;
+      let submissionPath = /databases/$(database)/documents/socialTaskSubmissions/$(submissionId);
+      let balancePath = /databases/$(database)/documents/socialTaskBalances/$(userId);
+      return isStaff()
+        && userId != request.auth.uid
+        && resource.data.role == 'member'
+        && request.resource.data.diff(resource.data).affectedKeys().hasAll([
+          'reputationPoints', 'reputationUpdatedAt', 'lastSocialTaskSubmissionId'
+        ])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'reputationPoints', 'reputationUpdatedAt', 'lastSocialTaskSubmissionId'
+        ])
+        && submissionId is string
+        && exists(submissionPath)
+        && get(submissionPath).data.userId == userId
+        && get(submissionPath).data.status == 'Pending'
+        && getAfter(submissionPath).data.status == 'Approved'
+        && getAfter(submissionPath).data.reviewedBy == request.auth.uid
+        && getAfter(submissionPath).data.reviewedAt == request.time
+        && exists(balancePath)
+        && get(balancePath).data.points == resource.data.get('reputationPoints', 0)
+        && request.resource.data.reputationPoints
+          == get(balancePath).data.points + get(submissionPath).data.tokenReward
+        && getAfter(balancePath).data.points == request.resource.data.reputationPoints
+        && request.resource.data.reputationUpdatedAt == request.time
+        && existsAfter(/databases/$(database)/documents/reputationRewards/$(submissionId));
+    }
+
+    function staffUpdatingSocialTaskBalance(userId) {
+      let submissionId = getAfter(/databases/$(database)/documents/users/$(userId)).data.lastSocialTaskSubmissionId;
+      let submissionPath = /databases/$(database)/documents/socialTaskSubmissions/$(submissionId);
+      return isStaff()
+        && submissionId is string
+        && exists(submissionPath)
+        && get(submissionPath).data.userId == userId
+        && get(submissionPath).data.status == 'Pending'
+        && getAfter(submissionPath).data.status == 'Approved'
+        && getAfter(submissionPath).data.reviewedBy == request.auth.uid
+        && getAfter(submissionPath).data.reviewedAt == request.time
+        && get(/databases/$(database)/documents/users/$(userId)).data.reputationPoints == resource.data.points
+        && request.resource.data.points == resource.data.points + get(submissionPath).data.tokenReward
+        && getAfter(/databases/$(database)/documents/users/$(userId)).data.reputationPoints == request.resource.data.points
+        && existsAfter(/databases/$(database)/documents/reputationRewards/$(submissionId));
+    }
+
     function announcementFieldsValid(data) {
       return data.title is string
         && data.title.size() > 0
@@ -85,6 +146,12 @@ service cloud.firestore {
         && request.resource.data.twitterUrl.size() <= 180
         && request.resource.data.discordHandle is string
         && request.resource.data.discordHandle.size() <= 100
+      ) || (
+        staffAwardingSocialTask(userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'reputationPoints', 'reputationUpdatedAt', 'lastSocialTaskSubmissionId'
+        ])
+        && request.resource.data.lastSocialTaskSubmissionId is string
       );
       allow delete: if isAdmin();
 
@@ -171,6 +238,31 @@ service cloud.firestore {
       allow delete: if isOwner(userId) || isAdmin();
     }
 
+    match /socialTaskBalances/{userId} {
+      allow read: if isOwner(userId) || isAdmin() || isStaff();
+      allow create: if (isOwner(userId) || isAdmin())
+        && request.resource.data.keys().hasOnly(['points', 'displayName', 'showOnLeaderboard', 'updatedAt'])
+        && request.resource.data.points == getAfter(/databases/$(database)/documents/users/$(userId)).data.get('reputationPoints', 0)
+        && request.resource.data.displayName == getAfter(/databases/$(database)/documents/users/$(userId)).data.displayName
+        && request.resource.data.showOnLeaderboard == getAfter(/databases/$(database)/documents/users/$(userId)).data.showOnLeaderboard
+        && request.resource.data.updatedAt == request.time;
+      allow update: if (
+        (isOwner(userId) || isAdmin())
+        && request.resource.data.keys().hasOnly(['points', 'displayName', 'showOnLeaderboard', 'updatedAt'])
+        && request.resource.data.points == getAfter(/databases/$(database)/documents/users/$(userId)).data.get('reputationPoints', 0)
+        && request.resource.data.displayName == getAfter(/databases/$(database)/documents/users/$(userId)).data.displayName
+        && request.resource.data.showOnLeaderboard == getAfter(/databases/$(database)/documents/users/$(userId)).data.showOnLeaderboard
+        && request.resource.data.updatedAt == request.time
+      ) || (
+        staffUpdatingSocialTaskBalance(userId)
+        && request.resource.data.keys().hasOnly(['points', 'displayName', 'showOnLeaderboard', 'updatedAt'])
+        && request.resource.data.displayName == resource.data.displayName
+        && request.resource.data.showOnLeaderboard == resource.data.showOnLeaderboard
+        && request.resource.data.updatedAt == request.time
+      );
+      allow delete: if false;
+    }
+
     match /publicLeaderboard/{userId} {
       allow read: if signedIn();
       allow create, update: if isAdmin() || (
@@ -185,6 +277,17 @@ service cloud.firestore {
         && request.resource.data.points >= 0
         && request.resource.data.points == getAfter(/databases/$(database)/documents/users/$(userId)).data.reputationPoints
         && request.resource.data.updatedAt == request.time
+      ) || (
+        socialTaskAwardLinked(userId, getAfter(/databases/$(database)/documents/users/$(userId)).data.lastSocialTaskSubmissionId)
+        && getAfter(/databases/$(database)/documents/users/$(userId)).data.showOnLeaderboard == true
+        && request.resource.data.keys().hasOnly(['displayName', 'points', 'updatedAt'])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() > 0
+        && request.resource.data.displayName.size() <= 100
+        && request.resource.data.displayName == getAfter(/databases/$(database)/documents/socialTaskBalances/$(userId)).data.displayName
+        && request.resource.data.points is number
+        && request.resource.data.points == getAfter(/databases/$(database)/documents/socialTaskBalances/$(userId)).data.points
+        && request.resource.data.updatedAt == request.time
       );
       allow delete: if isAdmin() || (
         isOwner(userId)
@@ -193,8 +296,165 @@ service cloud.firestore {
     }
 
     match /reputationRewards/{rewardId} {
-      allow read, create: if isAdmin();
+      allow read: if isAdmin();
+      allow create: if isAdmin() || (
+        isStaff()
+        && request.resource.data.keys().hasAll([
+          'userId', 'memberName', 'title', 'category', 'points',
+          'note', 'awardedBy', 'createdAt', 'taskSubmissionId'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'userId', 'memberName', 'title', 'category', 'points',
+          'note', 'awardedBy', 'createdAt', 'taskSubmissionId'
+        ])
+        && request.resource.data.taskSubmissionId is string
+        && rewardId == request.resource.data.taskSubmissionId
+        && socialTaskAwardLinked(request.resource.data.userId, request.resource.data.taskSubmissionId)
+        && request.resource.data.userId is string
+        && request.resource.data.memberName is string
+        && request.resource.data.memberName == get(/databases/$(database)/documents/socialTaskBalances/$(request.resource.data.userId)).data.displayName
+        && request.resource.data.title == get(/databases/$(database)/documents/socialTaskSubmissions/$(request.resource.data.taskSubmissionId)).data.taskTitle
+        && request.resource.data.category == 'Social task'
+        && request.resource.data.points == get(/databases/$(database)/documents/socialTaskSubmissions/$(request.resource.data.taskSubmissionId)).data.tokenReward
+        && request.resource.data.note == getAfter(/databases/$(database)/documents/socialTaskSubmissions/$(request.resource.data.taskSubmissionId)).data.reviewNote
+        && request.resource.data.awardedBy is string
+        && request.resource.data.awardedBy.size() <= 100
+        && request.resource.data.createdAt == request.time
+      );
       allow update, delete: if false;
+    }
+
+    match /socialTasks/{taskId} {
+      allow read: if isAdmin() || isStaff() || (
+        signedIn() && resource.data.status == 'Active'
+      );
+      allow create: if (isAdmin() || isStaff())
+        && request.resource.data.keys().hasAll([
+          'title', 'description', 'category', 'platform', 'actionUrl',
+          'tokenReward', 'status', 'createdBy', 'createdByName', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'title', 'description', 'category', 'platform', 'actionUrl',
+          'tokenReward', 'status', 'createdBy', 'createdByName', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 1500
+        && request.resource.data.category is string
+        && request.resource.data.category.size() <= 80
+        && request.resource.data.platform is string
+        && request.resource.data.platform.size() <= 60
+        && request.resource.data.actionUrl is string
+        && request.resource.data.actionUrl.size() <= 500
+        && request.resource.data.tokenReward is int
+        && request.resource.data.tokenReward >= 1
+        && request.resource.data.tokenReward <= 10000
+        && request.resource.data.status in ['Active', 'Paused']
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdByName is string
+        && request.resource.data.createdByName.size() <= 100
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if (isAdmin() || isStaff())
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'title', 'description', 'category', 'platform', 'actionUrl',
+          'tokenReward', 'status', 'updatedAt'
+        ])
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 1500
+        && request.resource.data.category is string
+        && request.resource.data.category.size() <= 80
+        && request.resource.data.platform is string
+        && request.resource.data.platform.size() <= 60
+        && request.resource.data.actionUrl is string
+        && request.resource.data.actionUrl.size() <= 500
+        && request.resource.data.tokenReward is int
+        && request.resource.data.tokenReward >= 1
+        && request.resource.data.tokenReward <= 10000
+        && request.resource.data.status in ['Active', 'Paused']
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if isAdmin();
+    }
+
+    match /socialTaskSubmissions/{submissionId} {
+      allow read: if isAdmin() || isStaff() || (
+        signedIn() && resource.data.userId == request.auth.uid
+      );
+      allow create: if signedIn()
+        && request.resource.data.keys().hasAll([
+          'taskId', 'taskTitle', 'userId', 'userName', 'proof', 'tokenReward',
+          'status', 'submittedAt', 'reviewedBy', 'reviewedByName', 'reviewedAt', 'reviewNote'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'taskId', 'taskTitle', 'userId', 'userName', 'proof', 'tokenReward',
+          'status', 'submittedAt', 'reviewedBy', 'reviewedByName', 'reviewedAt', 'reviewNote'
+        ])
+        && request.resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'member'
+        && request.resource.data.taskId is string
+        && request.resource.data.taskId.size() > 0
+        && submissionId == request.resource.data.taskId + '__' + request.auth.uid
+        && get(/databases/$(database)/documents/socialTasks/$(request.resource.data.taskId)).data.status == 'Active'
+        && request.resource.data.taskTitle == get(/databases/$(database)/documents/socialTasks/$(request.resource.data.taskId)).data.title
+        && request.resource.data.userName is string
+        && request.resource.data.userName.size() <= 100
+        && request.resource.data.proof is string
+        && request.resource.data.proof.size() > 0
+        && request.resource.data.proof.size() <= 2000
+        && request.resource.data.tokenReward == get(/databases/$(database)/documents/socialTasks/$(request.resource.data.taskId)).data.tokenReward
+        && request.resource.data.status == 'Pending'
+        && request.resource.data.submittedAt == request.time
+        && request.resource.data.reviewedBy == null
+        && request.resource.data.reviewedByName == ''
+        && request.resource.data.reviewedAt == null
+        && request.resource.data.reviewNote == '';
+      allow update: if (isAdmin() || isStaff())
+        && resource.data.status == 'Pending'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'reviewedBy', 'reviewedByName', 'reviewedAt', 'reviewNote'
+        ])
+        && request.resource.data.status in ['Approved', 'Rejected']
+        && request.resource.data.reviewedBy == request.auth.uid
+        && request.resource.data.reviewedByName is string
+        && request.resource.data.reviewedByName.size() <= 100
+        && request.resource.data.reviewedAt == request.time
+        && request.resource.data.reviewNote is string
+        && request.resource.data.reviewNote.size() <= 1000
+        && (
+          request.resource.data.status != 'Approved'
+          || (
+            getAfter(/databases/$(database)/documents/users/$(resource.data.userId)).data.lastSocialTaskSubmissionId == submissionId
+            && get(/databases/$(database)/documents/users/$(resource.data.userId)).data.reputationPoints
+              == get(/databases/$(database)/documents/socialTaskBalances/$(resource.data.userId)).data.points
+            && getAfter(/databases/$(database)/documents/socialTaskBalances/$(resource.data.userId)).data.points
+              == get(/databases/$(database)/documents/socialTaskBalances/$(resource.data.userId)).data.points + resource.data.tokenReward
+            && getAfter(/databases/$(database)/documents/users/$(resource.data.userId)).data.reputationPoints
+              == getAfter(/databases/$(database)/documents/socialTaskBalances/$(resource.data.userId)).data.points
+            && existsAfter(/databases/$(database)/documents/reputationRewards/$(submissionId))
+          )
+        );
+      allow update: if signedIn()
+        && resource.data.userId == request.auth.uid
+        && resource.data.status == 'Rejected'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'proof', 'status', 'submittedAt', 'reviewedBy', 'reviewedByName', 'reviewedAt', 'reviewNote'
+        ])
+        && request.resource.data.status == 'Pending'
+        && request.resource.data.proof is string
+        && request.resource.data.proof.size() > 0
+        && request.resource.data.proof.size() <= 2000
+        && request.resource.data.submittedAt == request.time
+        && request.resource.data.reviewedBy == null
+        && request.resource.data.reviewedByName == ''
+        && request.resource.data.reviewedAt == null
+        && request.resource.data.reviewNote == ''
+        && get(/databases/$(database)/documents/socialTasks/$(resource.data.taskId)).data.status == 'Active';
+      allow delete: if isAdmin();
     }
 
     match /staffTasks/{taskId} {

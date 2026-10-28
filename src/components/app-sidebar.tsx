@@ -79,6 +79,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       { label: "Opportunities", href: "/member/opportunities", icon: BriefcaseBusiness },
       { label: "Learning Hub", href: "/member/learning-hub", icon: GraduationCap },
       { label: "Events", href: "/member/events", icon: CalendarDays },
+      { label: "Tasks", href: "/member/tasks", icon: ClipboardList },
       { label: "Leaderboard", href: "/member/leaderboard", icon: Trophy },
     ] },
     { label: "You", links: [
@@ -91,6 +92,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const staffGroups: { label: string; links: { label: string; href: string; icon: LucideIcon }[] }[] = [
     { label: "Workspace", links: [
       { label: "Overview", href: "/staff", icon: LayoutDashboard },
+      { label: "Tasks", href: "/staff/tasks", icon: ClipboardList },
       { label: "Assigned Tasks", href: "/staff/assigned-tasks", icon: ClipboardList },
       { label: "Members", href: "/staff/members", icon: UsersRound },
     ] },

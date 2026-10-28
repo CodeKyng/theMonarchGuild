@@ -104,9 +104,16 @@ export default function Account() {
       const currentUserSnapshot = await getDoc(userRef);
       const currentUserData = currentUserSnapshot.data() ?? {};
       const currentPoints = typeof currentUserData.reputationPoints === "number" && Number.isFinite(currentUserData.reputationPoints) ? Math.max(0, Math.floor(currentUserData.reputationPoints)) : 0;
+      const balanceRef = doc(db, "socialTaskBalances", authenticatedUser.uid);
       const publicRef = doc(db, "publicProfiles", authenticatedUser.uid);
       const batch = writeBatch(db);
       batch.update(userRef, { ...cleanProfile, showInMemberDirectory: showInDirectory });
+      batch.set(balanceRef, {
+        points: currentPoints,
+        displayName: cleanProfile.displayName,
+        showOnLeaderboard: currentUserData.showOnLeaderboard === true,
+        updatedAt: serverTimestamp(),
+      });
       if (showInDirectory) {
         const { displayName, professionalTitle, workType, experienceYears, skills, location, bio, interests, websiteUrl, linkedinUrl, githubUrl, twitterUrl } = cleanProfile;
         batch.set(publicRef, { displayName, professionalTitle, workType, experienceYears, skills: skills.split(",").map((skill) => skill.trim()).filter(Boolean), location, bio, interests, websiteUrl, linkedinUrl, githubUrl, twitterUrl, updatedAt: serverTimestamp() });
