@@ -131,7 +131,7 @@ export default function AdminCreateTaskDialog({ onCreated }: { onCreated: () => 
               id="admin-create-task-form"
               onSubmit={handleSubmit(createTask)}
               noValidate
-              className="grid gap-4 px-6 py-4 sm:grid-cols-2"
+              className="grid gap-4 px-6 mb-6 py-4 sm:grid-cols-2"
             >
               <div className="space-y-2 sm:col-span-2">
                 <Label htmlFor="task-title">
