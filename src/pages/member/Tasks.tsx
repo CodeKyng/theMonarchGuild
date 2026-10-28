@@ -191,12 +191,15 @@ export default function MemberTasks() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {task.actionUrl && (
-                    <Button size="sm" variant="outline" asChild>
-                      <a href={task.actionUrl} target="_blank" rel="noreferrer">
-                        <ExternalLink className="size-4" aria-hidden="true" />
-                        Open task
-                      </a>
-                    </Button>
+                    <a
+                      href={task.actionUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-3 text-sm font-medium hover:bg-muted"
+                    >
+                      <ExternalLink className="size-4" aria-hidden="true" />
+                      Open task
+                    </a>
                   )}
                   {!sub || sub.status === "Rejected" ? (
                     <Button
