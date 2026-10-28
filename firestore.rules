@@ -1,1 +1,59 @@
-PLACEHOLDER
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isStaff() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'staff';
+    }
+
+    match /communityTasks/{taskId} {
+      allow read: if signedIn();
+      allow create: if isAdmin()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 140
+        && request.resource.data.rewardAmount is number
+        && request.resource.data.rewardAmount > 0
+        && request.resource.data.status == 'Active'
+        && request.resource.data.platform in ['X', 'Telegram', 'Other'];
+      allow update: if isAdmin() || (
+        (isAdmin() || isStaff())
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completionCount', 'updatedAt'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /taskSubmissions/{submissionId} {
+      allow read: if isAdmin() || isStaff() || (
+        signedIn() && resource.data.userId == request.auth.uid
+      );
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'Pending'
+        && request.resource.data.taskId is string
+        && request.resource.data.walletAddress is string
+        && request.resource.data.walletAddress.size() == 42
+        && request.resource.data.proofUrl is string
+        && request.resource.data.proofUrl.size() > 0
+        && request.resource.data.rewardAmount is number
+        && request.resource.data.rewardAmount > 0;
+      allow update: if isAdmin() || isStaff();
+      allow delete: if isAdmin();
+    }
+  }
+}
