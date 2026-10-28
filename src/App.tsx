@@ -10,18 +10,13 @@ import {
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import RoleRoute from "./components/RoleRoute";
 import StaffLayout from "./components/layout/StaffLayout";
-
-// import AdminLayout from "./layouts/AdminLayout";
-// import StaffLayout from "./layouts/StaffLayout";
 import MemberLayout from "./components/layout/MemberLayout";
+import AdminLayout from "./components/layout/AdminLayout";
 
 const Login = lazy(() => import("./pages/public/Login"));
 const Signup = lazy(() => import("./pages/public/Signup"));
 const Dashboard = lazy(() => import("./pages/public/Dashboard"));
-// import AccessDenied from "./pages/AccessDenied";
 
-// import AdminDashboard from "./pages/admin/AdminDashboard";
-// import StaffDashboard from "./pages/staff/StaffDashboard";
 const MemberDashboard = lazy(() => import("./pages/member/Dashboard"));
 const MemberSettings = lazy(() => import("./pages/member/Settings"));
 const MemberCommunity = lazy(() => import("./pages/member/Community"));
@@ -34,6 +29,8 @@ const MemberLeaderboard = lazy(() => import("./pages/member/Leaderboard"));
 const MemberMessages = lazy(() => import("./pages/member/Messages"));
 const MemberNotifications = lazy(() => import("./pages/member/Notifications"));
 const MemberProfile = lazy(() => import("./pages/member/Profile"));
+const MemberTasks = lazy(() => import("./pages/member/Tasks"));
+
 const StaffDashboard = lazy(() => import("./pages/staff/Dashboard"));
 const StaffModulePage = lazy(() => import("./pages/staff/StaffModulePage"));
 const StaffAssignedTasks = lazy(() => import("./pages/staff/AssignedTasks"));
@@ -47,6 +44,8 @@ const StaffEvents = lazy(() => import("./pages/staff/Events"));
 const StaffSupportInbox = lazy(() => import("./pages/staff/SupportInbox"));
 const StaffAnalytics = lazy(() => import("./pages/staff/Analytics"));
 const StaffSettings = lazy(() => import("./pages/staff/Settings"));
+const StaffTaskVerification = lazy(() => import("./pages/staff/TaskVerification"));
+
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminAnalytics = lazy(() => import("./pages/admin/Analytics"));
 const AdminUsers = lazy(() => import("./pages/admin/Users"));
@@ -64,8 +63,8 @@ const AdminSecurityCenter = lazy(() => import("./pages/admin/SecurityCenter"));
 const AdminIntegrations = lazy(() => import("./pages/admin/Integrations"));
 const AdminPlatformSettings = lazy(() => import("./pages/admin/PlatformSettings"));
 const AdminEvents = lazy(() => import("./pages/admin/Events"));
+const AdminTasks = lazy(() => import("./pages/admin/Tasks"));
 const AdminModulePage = lazy(() => import("./pages/admin/AdminModulePage"));
-import AdminLayout from "./components/layout/AdminLayout";
 const Account = lazy(() => import("./pages/Account"));
 
 function HomeRedirect() {
@@ -97,7 +96,6 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup /> } />
       <Route path="/" element={<Dashboard />} />
-      {/* <Route path="/access-denied" element={<AccessDenied />} /> */}
 
       {/* Admin routes */}
       <Route element={<RoleRoute allowedRoles={["admin"]} />}>
@@ -110,6 +108,7 @@ function AppRoutes() {
           <Route path="community-content" element={<AdminCommunityContent />} />
           <Route path="projects" element={<AdminProjects />} />
           <Route path="opportunities" element={<AdminOpportunities />} />
+          <Route path="tasks" element={<AdminTasks />} />
           <Route path="learning-management" element={<AdminLearningManagement />} />
           <Route path="reports-moderation" element={<AdminReportsModeration />} />
           <Route path="support" element={<AdminSupport />} />
@@ -122,18 +121,6 @@ function AppRoutes() {
           <Route path="users" element={<Navigate to="/admin/members" replace />} />
           <Route path="account" element={<Account />} />
           <Route path=":section" element={<AdminModulePage />} />
-          {/* <Route
-            path="users"
-            element={<h2>Manage Users</h2>}
-          />
-          <Route
-            path="staff"
-            element={<h2>Manage Staff</h2>}
-          />
-          <Route
-            path="settings"
-            element={<h2>Admin Settings</h2>}
-          /> */}
         </Route>
       </Route>
 
@@ -143,6 +130,7 @@ function AppRoutes() {
           <Route index element={<StaffDashboard />} />
           <Route path="account" element={<Account />} />
           <Route path="assigned-tasks" element={<StaffAssignedTasks />} />
+          <Route path="task-verification" element={<StaffTaskVerification />} />
           <Route path="members" element={<StaffMembers />} />
           <Route path="moderation-queue" element={<StaffModerationQueue />} />
           <Route path="reports" element={<StaffReports />} />
@@ -166,6 +154,7 @@ function AppRoutes() {
           <Route path="explore-members" element={<ExploreMembers />} />
           <Route path="projects" element={<MemberProjects />} />
           <Route path="opportunities" element={<MemberOpportunities />} />
+          <Route path="tasks" element={<MemberTasks />} />
           <Route path="learning-hub" element={<MemberLearningHub />} />
           <Route path="events" element={<MemberEvents />} />
           <Route path="messages" element={<MemberMessages />} />
@@ -174,14 +163,6 @@ function AppRoutes() {
           <Route path="profile" element={<MemberProfile />} />
           <Route path="settings" element={<MemberSettings />} />
           <Route path="account" element={<Account />} />
-          {/* <Route
-            path="services"
-            element={<h2>Member Services</h2>}
-          />
-          <Route
-            path="profile"
-            element={<h2>My Profile</h2>}
-          /> */}
         </Route>
       </Route>
 

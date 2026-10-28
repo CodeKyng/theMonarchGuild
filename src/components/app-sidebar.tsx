@@ -1,8 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   Activity, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined,
-  Bell, ClipboardList, Compass, Flag, FolderKanban, Gift, GraduationCap,
-  LayoutDashboard, LifeBuoy, Mail, Plug, Settings2, ShieldCheck, ShieldEllipsis,
+  Bell, ClipboardCheck, ClipboardList, Compass, Flag, FolderKanban, Gift, GraduationCap,
+  LayoutDashboard, LifeBuoy, ListTodo, Mail, Plug, Settings2, ShieldCheck, ShieldEllipsis,
   Trophy, UserRound, UsersRound, type LucideIcon,
 } from "lucide-react";
 
@@ -52,6 +52,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       { label: "Community & Content", href: "/admin/community-content", icon: Activity },
       { label: "Projects", href: "/admin/projects", icon: FolderKanban },
       { label: "Opportunities", href: "/admin/opportunities", icon: BriefcaseBusiness },
+      { label: "Tasks (TMG)", href: "/admin/tasks", icon: ListTodo },
       { label: "Events", href: "/admin/events", icon: CalendarDays },
       { label: "Learning Management", href: "/admin/learning-management", icon: GraduationCap },
     ] },
@@ -77,6 +78,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
     { label: "Grow", links: [
       { label: "Projects", href: "/member/projects", icon: FolderKanban },
       { label: "Opportunities", href: "/member/opportunities", icon: BriefcaseBusiness },
+      { label: "Tasks (earn TMG)", href: "/member/tasks", icon: ListTodo },
       { label: "Learning Hub", href: "/member/learning-hub", icon: GraduationCap },
       { label: "Events", href: "/member/events", icon: CalendarDays },
       { label: "Leaderboard", href: "/member/leaderboard", icon: Trophy },
@@ -92,6 +94,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
     { label: "Workspace", links: [
       { label: "Overview", href: "/staff", icon: LayoutDashboard },
       { label: "Assigned Tasks", href: "/staff/assigned-tasks", icon: ClipboardList },
+      { label: "Task Verification", href: "/staff/task-verification", icon: ClipboardCheck },
       { label: "Members", href: "/staff/members", icon: UsersRound },
     ] },
     { label: "Community", links: [
