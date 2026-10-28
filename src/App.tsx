@@ -30,7 +30,6 @@ const MemberLeaderboard = lazy(() => import("./pages/member/Leaderboard"));
 const MemberMessages = lazy(() => import("./pages/member/Messages"));
 const MemberNotifications = lazy(() => import("./pages/member/Notifications"));
 const MemberProfile = lazy(() => import("./pages/member/Profile"));
-const MemberTasks = lazy(() => import("./pages/member/Tasks"));
 
 const StaffDashboard = lazy(() => import("./pages/staff/Dashboard"));
 const StaffModulePage = lazy(() => import("./pages/staff/StaffModulePage"));
@@ -163,7 +162,6 @@ function AppRoutes() {
           <Route path="messages" element={<MemberMessages />} />
           <Route path="notifications" element={<MemberNotifications />} />
           <Route path="leaderboard" element={<MemberLeaderboard />} />
-          <Route path="tasks" element={<MemberTasks />} />
           <Route path="profile" element={<MemberProfile />} />
           <Route path="settings" element={<MemberSettings />} />
           <Route path="account" element={<Account />} />
