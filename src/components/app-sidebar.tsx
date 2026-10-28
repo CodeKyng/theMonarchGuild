@@ -81,7 +81,6 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       { label: "Tasks (earn TMG)", href: "/member/tasks", icon: ListTodo },
       { label: "Learning Hub", href: "/member/learning-hub", icon: GraduationCap },
       { label: "Events", href: "/member/events", icon: CalendarDays },
-      { label: "Tasks", href: "/member/tasks", icon: ClipboardList },
       { label: "Leaderboard", href: "/member/leaderboard", icon: Trophy },
     ] },
     { label: "You", links: [
