@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { db } from "@/firebase";
 
@@ -164,95 +165,103 @@ export default function MemberTasks() {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Available tasks</h2>
-        {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
-        {!loading && activeTasks.length === 0 && (
-          <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            No active tasks right now. Check back soon.
-          </p>
-        )}
-        {activeTasks.map((task) => {
-          const sub = submissionByTask.get(task.id);
-          const full =
-            task.maxCompletions != null && task.completionCount >= task.maxCompletions;
-          return (
-            <article key={task.id} className="rounded-xl border border-border bg-card p-4 sm:p-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0 space-y-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-lg font-semibold">{task.title}</h3>
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{task.platform}</span>
-                    {sub && statusBadge(sub.status)}
+        <ScrollArea className="h-[min(55vh,32rem)] rounded-xl border border-border">
+          <div className="space-y-3 p-3 sm:p-4">
+            {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
+            {!loading && activeTasks.length === 0 && (
+              <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+                No active tasks right now. Check back soon.
+              </p>
+            )}
+            {activeTasks.map((task) => {
+              const sub = submissionByTask.get(task.id);
+              const full =
+                task.maxCompletions != null && task.completionCount >= task.maxCompletions;
+              return (
+                <article key={task.id} className="rounded-xl border border-border bg-card p-4 sm:p-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-lg font-semibold">{task.title}</h3>
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{task.platform}</span>
+                        {sub && statusBadge(sub.status)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">{task.description}</p>
+                      <p className="text-sm">
+                        <span className="font-medium text-amber-600 dark:text-amber-400">{task.rewardAmount} TMG</span>
+                        {full && <span className="ml-2 text-muted-foreground">(limit reached)</span>}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {task.actionUrl && (
+                        <a
+                          href={task.actionUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-3 text-sm font-medium hover:bg-muted"
+                        >
+                          <ExternalLink className="size-4" aria-hidden="true" />
+                          Open task
+                        </a>
+                      )}
+                      {!sub || sub.status === "Rejected" ? (
+                        <Button
+                          size="sm"
+                          className="bg-amber-400 text-black hover:bg-amber-300"
+                          disabled={full}
+                          onClick={() => {
+                            setSelected(task);
+                            setSubmitError("");
+                            reset();
+                          }}
+                        >
+                          <Send className="size-4" aria-hidden="true" />
+                          Submit proof
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">{task.description}</p>
-                  <p className="text-sm">
-                    <span className="font-medium text-amber-600 dark:text-amber-400">{task.rewardAmount} TMG</span>
-                    {full && <span className="ml-2 text-muted-foreground">(limit reached)</span>}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {task.actionUrl && (
-                    <a
-                      href={task.actionUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-3 text-sm font-medium hover:bg-muted"
-                    >
-                      <ExternalLink className="size-4" aria-hidden="true" />
-                      Open task
-                    </a>
+                  {task.instructions && (
+                    <pre className="mt-3 whitespace-pre-wrap rounded-lg bg-muted/50 p-3 text-xs leading-5 text-muted-foreground">
+                      {task.instructions}
+                    </pre>
                   )}
-                  {!sub || sub.status === "Rejected" ? (
-                    <Button
-                      size="sm"
-                      className="bg-amber-400 text-black hover:bg-amber-300"
-                      disabled={full}
-                      onClick={() => {
-                        setSelected(task);
-                        setSubmitError("");
-                        reset();
-                      }}
-                    >
-                      <Send className="size-4" aria-hidden="true" />
-                      Submit proof
-                    </Button>
-                  ) : null}
-                </div>
-              </div>
-              {task.instructions && (
-                <pre className="mt-3 whitespace-pre-wrap rounded-lg bg-muted/50 p-3 text-xs leading-5 text-muted-foreground">
-                  {task.instructions}
-                </pre>
-              )}
-            </article>
-          );
-        })}
+                </article>
+              );
+            })}
+          </div>
+        </ScrollArea>
       </section>
 
       {mySubmissions.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Your submissions</h2>
-          {mySubmissions
-            .slice()
-            .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
-            .map((s) => (
-              <div key={s.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card p-4 text-sm">
-                <div>
-                  <p className="font-medium">{s.taskTitle}</p>
-                  <p className="text-muted-foreground">{s.rewardAmount} TMG · {s.walletAddress.slice(0, 6)}…{s.walletAddress.slice(-4)}</p>
-                  {s.rewardTxHash && (
-                    <a
-                      href={`https://sepolia.basescan.org/tx/${s.rewardTxHash}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-primary underline-offset-2 hover:underline"
-                    >
-                      View reward tx
-                    </a>
-                  )}
-                </div>
-                {statusBadge(s.status)}
-              </div>
-            ))}
+          <ScrollArea className="h-[min(40vh,20rem)] rounded-xl border border-border">
+            <div className="space-y-3 p-3 sm:p-4">
+              {mySubmissions
+                .slice()
+                .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
+                .map((s) => (
+                  <div key={s.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card p-4 text-sm">
+                    <div>
+                      <p className="font-medium">{s.taskTitle}</p>
+                      <p className="text-muted-foreground">{s.rewardAmount} TMG · {s.walletAddress.slice(0, 6)}…{s.walletAddress.slice(-4)}</p>
+                      {s.rewardTxHash && (
+                        <a
+                          href={`https://sepolia.basescan.org/tx/${s.rewardTxHash}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary underline-offset-2 hover:underline"
+                        >
+                          View reward tx
+                        </a>
+                      )}
+                    </div>
+                    {statusBadge(s.status)}
+                  </div>
+                ))}
+            </div>
+          </ScrollArea>
         </section>
       )}
 
