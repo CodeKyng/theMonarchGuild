@@ -6,6 +6,7 @@ import AdminCreateTaskDialog from "@/components/admin/tasks/AdminCreateTaskDialo
 import { taskFromDocument, taskStatuses, type CommunityTask, type TaskStatus } from "@/components/tasks/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { db } from "@/firebase";
 
@@ -97,7 +98,7 @@ export default function AdminTasks() {
         />
         <Select value={status} onValueChange={(v) => setStatus(v ?? "all")}>
           <SelectTrigger className="w-[160px]"><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
+          <SelectContent>{/* status filter */}
             <SelectItem value="all">All statuses</SelectItem>
             {taskStatuses.map((s) => (
               <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -121,60 +122,62 @@ export default function AdminTasks() {
         </div>
       </div>
 
-      <div className="space-y-3">
-        {loading && <p className="text-sm text-muted-foreground">Loading tasks…</p>}
-        {!loading && filtered.length === 0 && (
-          <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            No tasks yet. Create one to get started.
-          </p>
-        )}
-        {filtered.map((task) => (
-          <article key={task.id} className="rounded-xl border border-border bg-card p-4 sm:p-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0 space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-lg font-semibold">{task.title}</h2>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{task.platform}</span>
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${
-                    task.status === "Active" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" :
-                    task.status === "Paused" ? "bg-amber-500/15 text-amber-800 dark:text-amber-200" :
-                    "bg-muted text-muted-foreground"
-                  }`}>{task.status}</span>
+      <ScrollArea className="h-[min(60vh,36rem)] rounded-xl border border-border">
+        <div className="space-y-3 p-3 sm:p-4">
+          {loading && <p className="text-sm text-muted-foreground">Loading tasks…</p>}
+          {!loading && filtered.length === 0 && (
+            <p className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              No tasks yet. Create one to get started.
+            </p>
+          )}
+          {filtered.map((task) => (
+            <article key={task.id} className="rounded-xl border border-border bg-card p-4 sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-lg font-semibold">{task.title}</h2>
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{task.platform}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${
+                      task.status === "Active" ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" :
+                      task.status === "Paused" ? "bg-amber-500/15 text-amber-800 dark:text-amber-200" :
+                      "bg-muted text-muted-foreground"
+                    }`}>{task.status}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{task.description || task.instructions.slice(0, 120)}</p>
+                  <p className="text-sm">
+                    <span className="font-medium text-amber-600 dark:text-amber-400">{task.rewardAmount} TMG</span>
+                    {" · "}
+                    {task.completionCount} completion{task.completionCount === 1 ? "" : "s"}
+                    {task.maxCompletions != null ? ` / ${task.maxCompletions} max` : ""}
+                  </p>
+                  {task.actionUrl && (
+                    <a href={task.actionUrl} target="_blank" rel="noreferrer" className="text-sm text-primary underline-offset-2 hover:underline">
+                      Open action link
+                    </a>
+                  )}
                 </div>
-                <p className="text-sm text-muted-foreground">{task.description || task.instructions.slice(0, 120)}</p>
-                <p className="text-sm">
-                  <span className="font-medium text-amber-600 dark:text-amber-400">{task.rewardAmount} TMG</span>
-                  {" · "}
-                  {task.completionCount} completion{task.completionCount === 1 ? "" : "s"}
-                  {task.maxCompletions != null ? ` / ${task.maxCompletions} max` : ""}
-                </p>
-                {task.actionUrl && (
-                  <a href={task.actionUrl} target="_blank" rel="noreferrer" className="text-sm text-primary underline-offset-2 hover:underline">
-                    Open action link
-                  </a>
-                )}
+                <div className="flex flex-wrap gap-2">
+                  {task.status !== "Active" && (
+                    <Button size="sm" variant="outline" disabled={updatingId === task.id} onClick={() => void updateStatus(task.id, "Active")}>
+                      Activate
+                    </Button>
+                  )}
+                  {task.status !== "Paused" && (
+                    <Button size="sm" variant="outline" disabled={updatingId === task.id} onClick={() => void updateStatus(task.id, "Paused")}>
+                      Pause
+                    </Button>
+                  )}
+                  {task.status !== "Closed" && (
+                    <Button size="sm" variant="outline" disabled={updatingId === task.id} onClick={() => void updateStatus(task.id, "Closed")}>
+                      Close
+                    </Button>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {task.status !== "Active" && (
-                  <Button size="sm" variant="outline" disabled={updatingId === task.id} onClick={() => void updateStatus(task.id, "Active")}>
-                    Activate
-                  </Button>
-                )}
-                {task.status !== "Paused" && (
-                  <Button size="sm" variant="outline" disabled={updatingId === task.id} onClick={() => void updateStatus(task.id, "Paused")}>
-                    Pause
-                  </Button>
-                )}
-                {task.status !== "Closed" && (
-                  <Button size="sm" variant="outline" disabled={updatingId === task.id} onClick={() => void updateStatus(task.id, "Closed")}>
-                    Close
-                  </Button>
-                )}
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
+            </article>
+          ))}
+        </div>
+      </ScrollArea>
     </div>
   );
 }
