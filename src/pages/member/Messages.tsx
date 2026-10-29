@@ -8,6 +8,7 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  updateDoc,
   where,
   writeBatch,
 } from "firebase/firestore";
@@ -46,6 +47,10 @@ function conversationFromDoc(id: string, data: Record<string, unknown>): MemberC
     data.participantNames && typeof data.participantNames === "object"
       ? (data.participantNames as Record<string, unknown>)
       : {};
+  const rawRead =
+    data.participantLastRead && typeof data.participantLastRead === "object"
+      ? (data.participantLastRead as Record<string, unknown>)
+      : {};
   return {
     id,
     participants: Array.isArray(data.participants)
@@ -55,7 +60,11 @@ function conversationFromDoc(id: string, data: Record<string, unknown>): MemberC
     lastMessage: asText(data.lastMessage),
     lastMessageAt: asDate(data.lastMessageAt),
     lastMessageId: asText(data.lastMessageId),
+    lastMessageSenderId: asText(data.lastMessageSenderId),
     updatedAt: asDate(data.updatedAt),
+    participantLastRead: Object.fromEntries(
+      Object.entries(rawRead).map(([key, value]) => [key, asDate(value)]),
+    ),
   };
 }
 
@@ -188,6 +197,9 @@ export default function MemberMessages() {
           }),
         );
         setLoadingMessages(false);
+        void updateDoc(doc(db, "conversations", selectedId), {
+          [`participantLastRead.${user.uid}`]: serverTimestamp(),
+        }).catch((err) => console.error("Failed to mark conversation read:", err));
       },
       (loadError) => {
         console.error("Failed to load conversation messages:", loadError);
@@ -204,6 +216,11 @@ export default function MemberMessages() {
     setSelectedId(conversation.id);
     setActiveConversation(conversation);
     setError("");
+    if (user) {
+      void updateDoc(doc(db, "conversations", conversation.id), {
+        [`participantLastRead.${user.uid}`]: serverTimestamp(),
+      }).catch((err) => console.error("Failed to mark conversation read:", err));
+    }
   }
 
   async function startConversation(contact: MemberContact) {
@@ -227,7 +244,9 @@ export default function MemberMessages() {
           lastMessage: "",
           lastMessageAt: null,
           lastMessageId: "",
+          lastMessageSenderId: "",
           updatedAt: new Date(),
+          participantLastRead: {},
         };
         await setDoc(conversationRef, {
           participants,
@@ -235,6 +254,8 @@ export default function MemberMessages() {
           lastMessage: "",
           lastMessageAt: null,
           lastMessageId: "",
+          lastMessageSenderId: "",
+          participantLastRead: {},
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
@@ -269,7 +290,9 @@ export default function MemberMessages() {
       lastMessage: body,
       lastMessageAt: serverTimestamp(),
       lastMessageId: messageRef.id,
+      lastMessageSenderId: user.uid,
       updatedAt: serverTimestamp(),
+      [`participantLastRead.${user.uid}`]: serverTimestamp(),
     });
     const recipientId = selectedConversation.participants.find((participantId) => participantId !== user.uid);
     if (recipientId) {
