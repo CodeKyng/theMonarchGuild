@@ -145,3 +145,24 @@
     @apply font-sans;
     }
 }
+
+/* Contain thirdweb ConnectButton so it never overflows cards/header */
+.tw-wallet-host {
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+.tw-wallet-host > * {
+  max-width: 100%;
+}
+.tw-wallet-host button {
+  max-width: 100%;
+  height: 2.25rem !important;
+  min-height: 2.25rem !important;
+  font-size: 0.8125rem !important;
+  border-radius: 0.625rem !important;
+  white-space: nowrap;
+}
