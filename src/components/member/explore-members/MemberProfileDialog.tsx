@@ -81,7 +81,12 @@ export default function MemberProfileDialog({
     setToggling(true);
     setError("");
     try {
-      const result = await toggleFollow(db, user.uid, member.id);
+      const result = await toggleFollow(
+        db,
+        user.uid,
+        member.id,
+        user.displayName || user.email || "A guild member",
+      );
       setFollowing(result === "followed");
       const [followers, followingN, list] = await Promise.all([
         getFollowerCount(db, member.id),
