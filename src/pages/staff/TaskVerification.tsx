@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { db } from "@/firebase";
+import { createNotification } from "@/lib/notifications";
 
 export default function StaffTaskVerification() {
   const { user } = useAuth();
@@ -87,6 +88,21 @@ export default function StaffTaskVerification() {
         reviewNote: reviewNote.trim(),
         updatedAt: serverTimestamp(),
       });
+      try {
+        await createNotification(db, {
+          userId: selected.userId,
+          type: "task",
+          title: "Task proof rejected",
+          body: reviewNote.trim()
+            ? `Your proof for "${selected.taskTitle}" was rejected. ${reviewNote.trim()}`
+            : `Your proof for "${selected.taskTitle}" was rejected. You can resubmit with updated proof.`,
+          href: "/member/tasks",
+          actorName: user.displayName || user.email || "Staff",
+          sourceId: selected.id,
+        });
+      } catch (notifyErr) {
+        console.error("Failed to notify member:", notifyErr);
+      }
       setSelected(null);
       setReviewNote("");
       void refresh();
@@ -107,7 +123,6 @@ export default function StaffTaskVerification() {
     setActionBusy(true);
     setActionError("");
     try {
-      // 1. Transfer TMG from connected staff/admin wallet to member
       const tx = transfer({
         contract: tmgTokenContract,
         to: selected.walletAddress,
@@ -116,7 +131,6 @@ export default function StaffTaskVerification() {
       const result = await sendTransaction(tx);
       const txHash = result.transactionHash;
 
-      // 2. Update submission + bump task completion count
       const batch = writeBatch(db);
       batch.update(doc(db, "taskSubmissions", selected.id), {
         status: "Rewarded",
@@ -132,6 +146,20 @@ export default function StaffTaskVerification() {
         updatedAt: serverTimestamp(),
       });
       await batch.commit();
+
+      try {
+        await createNotification(db, {
+          userId: selected.userId,
+          type: "task",
+          title: "Task rewarded",
+          body: `Your proof for "${selected.taskTitle}" was approved. You earned $${selected.rewardAmount}.`,
+          href: "/member/tasks",
+          actorName: user.displayName || user.email || "Staff",
+          sourceId: selected.id,
+        });
+      } catch (notifyErr) {
+        console.error("Failed to notify member:", notifyErr);
+      }
 
       setSelected(null);
       setReviewNote("");
