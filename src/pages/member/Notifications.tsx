@@ -15,6 +15,7 @@ const knownTypes: NotificationType[] = [
   "follow",
   "task",
   "withdrawal",
+  "announcement",
   "general",
 ];
 
