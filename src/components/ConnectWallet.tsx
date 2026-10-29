@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
-import { ConnectButton, useActiveAccount, useDisconnect } from "thirdweb/react";
+import {
+  ConnectButton,
+  useActiveAccount,
+  useActiveWallet,
+  useDisconnect,
+} from "thirdweb/react";
 import { createWallet, inAppWallet } from "thirdweb/wallets";
 import { baseSepolia } from "thirdweb/chains";
 import { Link2, LoaderCircle, Unlink, Wallet } from "lucide-react";
@@ -22,9 +27,40 @@ function shortAddress(address: string) {
   return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
 
+/** Compact connect control for the top header (all roles). */
+export function HeaderConnectWallet() {
+  return (
+    <ConnectButton
+      client={thirdwebClient}
+      chain={baseSepolia}
+      wallets={wallets}
+      connectButton={{
+        label: "Connect Wallet",
+        style: {
+          minHeight: "36px",
+          height: "36px",
+          fontSize: "13px",
+          borderRadius: "10px",
+        },
+      }}
+      detailsButton={{
+        style: {
+          minHeight: "36px",
+          height: "36px",
+          fontSize: "13px",
+          borderRadius: "10px",
+        },
+      }}
+      theme="dark"
+    />
+  );
+}
+
+/** Full card that links the connected wallet address to the user profile in Firestore. */
 export default function ConnectWallet() {
   const { user } = useAuth();
   const account = useActiveAccount();
+  const activeWallet = useActiveWallet();
   const { disconnect } = useDisconnect();
   const [linkedAddress, setLinkedAddress] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,8 +92,9 @@ export default function ConnectWallet() {
     };
   }, [user]);
 
+  // When a wallet connects, persist the address on the user profile.
   useEffect(() => {
-    if (!user || !account?.address || saving) return;
+    if (!user || !account?.address) return;
     const address = account.address;
     if (linkedAddress?.toLowerCase() === address.toLowerCase()) return;
 
@@ -87,7 +124,7 @@ export default function ConnectWallet() {
     return () => {
       cancelled = true;
     };
-  }, [user, account?.address, linkedAddress, saving]);
+  }, [user, account?.address, linkedAddress]);
 
   async function unlinkWallet() {
     if (!user) return;
@@ -99,9 +136,9 @@ export default function ConnectWallet() {
         walletLinkedAt: null,
       });
       setLinkedAddress(null);
-      if (account) {
+      if (activeWallet) {
         try {
-          await disconnect();
+          disconnect(activeWallet);
         } catch {
           // ignore disconnect errors
         }
@@ -190,7 +227,9 @@ export default function ConnectWallet() {
               <p
                 role={feedback.type === "error" ? "alert" : "status"}
                 className={
-                  feedback.type === "error" ? "text-sm text-destructive" : "text-sm text-emerald-600 dark:text-emerald-400"
+                  feedback.type === "error"
+                    ? "text-sm text-destructive"
+                    : "text-sm text-emerald-600 dark:text-emerald-400"
                 }
               >
                 {feedback.message}

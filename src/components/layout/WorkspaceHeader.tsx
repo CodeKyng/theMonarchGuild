@@ -4,6 +4,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 import { AvatarDropdown } from "./AvatarDropdown";
 import { ModeToggle } from "../mode-toggle";
+import { HeaderConnectWallet } from "@/components/ConnectWallet";
 
 const roleLabels: Record<UserRole, string> = {
   admin: "Administrator",
@@ -29,6 +30,7 @@ const adminPageTitles: Record<string, string> = {
   "/admin/security-center": "Security Center",
   "/admin/integrations": "Integrations",
   "/admin/platform-settings": "Platform Settings",
+  "/admin/account": "Account",
 };
 
 const memberPageTitles: Record<string, string> = {
@@ -88,6 +90,7 @@ export default function WorkspaceHeader({ role }: { role: UserRole }) {
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+        <HeaderConnectWallet />
         <ModeToggle />
         <AvatarDropdown />
       </div>
