@@ -46,6 +46,13 @@ function formatBadge(count: number) {
   return count > 99 ? "99+" : String(count);
 }
 
+type NavLink = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  badgeKey?: "messages" | "notifications";
+};
+
 export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const location = useLocation();
   const { user } = useAuth();
@@ -56,7 +63,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const [unreadMessages, setUnreadMessages] = useState(0);
 
   useEffect(() => {
-    if (!user || role !== "member") {
+    if (!user) {
       setUnreadNotifications(0);
       setUnreadMessages(0);
       return;
@@ -78,9 +85,9 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       },
     );
     return unsub;
-  }, [user, role]);
+  }, [user]);
 
-  const adminGroups: { label: string; links: { label: string; href: string; icon: LucideIcon }[] }[] = [
+  const adminGroups: { label: string; links: NavLink[] }[] = [
     { label: "Workspace", links: [
       { label: "Overview", href: "/admin", icon: LayoutDashboard },
       { label: "Members", href: "/admin/members", icon: UsersRound },
@@ -107,9 +114,13 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       { label: "Integrations", href: "/admin/integrations", icon: Plug },
       { label: "Platform Settings", href: "/admin/platform-settings", icon: Settings2 },
     ] },
+    { label: "Inbox", links: [
+      { label: "Messages", href: "/admin/messages", icon: Mail, badgeKey: "messages" },
+      { label: "Notifications", href: "/admin/notifications", icon: Bell, badgeKey: "notifications" },
+    ] },
   ];
 
-  const memberGroups: { label: string; links: { label: string; href: string; icon: LucideIcon; badgeKey?: "messages" | "notifications" }[] }[] = [
+  const memberGroups: { label: string; links: NavLink[] }[] = [
     { label: "Guild", links: [
       { label: "Overview", href: "/member", icon: LayoutDashboard },
       { label: "Community", href: "/member/community", icon: Activity },
@@ -131,7 +142,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
     ] },
   ];
 
-  const staffGroups: { label: string; links: { label: string; href: string; icon: LucideIcon }[] }[] = [
+  const staffGroups: { label: string; links: NavLink[] }[] = [
     { label: "Workspace", links: [
       { label: "Overview", href: "/staff", icon: LayoutDashboard },
       { label: "Tasks", href: "/staff/tasks", icon: ClipboardList },
@@ -153,6 +164,10 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       { label: "Support Inbox", href: "/staff/support-inbox", icon: LifeBuoy },
       { label: "Analytics", href: "/staff/analytics", icon: ChartNoAxesCombined },
       { label: "Settings", href: "/staff/settings", icon: Settings2 },
+    ] },
+    { label: "Inbox", links: [
+      { label: "Messages", href: "/staff/messages", icon: Mail, badgeKey: "messages" },
+      { label: "Notifications", href: "/staff/notifications", icon: Bell, badgeKey: "notifications" },
     ] },
   ];
 
@@ -189,8 +204,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             <SidebarMenu>
               {group.links.map((link) => {
-                const { label, href, icon: Icon } = link;
-                const badgeKey = "badgeKey" in link ? link.badgeKey : undefined;
+                const { label, href, icon: Icon, badgeKey } = link;
                 const badge = badgeFor(badgeKey);
                 return (
                   <SidebarMenuItem key={href}>
