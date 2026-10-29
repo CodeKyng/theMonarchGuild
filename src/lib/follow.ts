@@ -10,6 +10,7 @@ import {
   where,
 } from "firebase/firestore";
 import type { Firestore } from "firebase/firestore";
+import { createNotification } from "@/lib/notifications";
 
 export function followDocId(followerId: string, followingId: string) {
   return `${followerId}_${followingId}`;
@@ -61,6 +62,7 @@ export async function toggleFollow(
   db: Firestore,
   followerId: string,
   followingId: string,
+  followerName?: string,
 ): Promise<"followed" | "unfollowed"> {
   const ref = doc(db, "follows", followDocId(followerId, followingId));
   const existing = await getDoc(ref);
@@ -75,5 +77,23 @@ export async function toggleFollow(
     followingId,
     createdAt: serverTimestamp(),
   });
+
+  if (followerId !== followingId) {
+    const name = followerName?.trim() || "A guild member";
+    try {
+      await createNotification(db, {
+        userId: followingId,
+        type: "follow",
+        title: "New follower",
+        body: `${name} started following you.`,
+        href: "/member/explore-members",
+        actorName: name,
+        sourceId: followerId,
+      });
+    } catch (err) {
+      console.error("Failed to create follow notification:", err);
+    }
+  }
+
   return "followed";
 }
