@@ -1,4 +1,4 @@
-import { Award, Bell, Check, ListTodo, MessageCircle, UserPlus, Banknote } from "lucide-react";
+import { Award, Bell, Check, ListTodo, Megaphone, MessageCircle, UserPlus, Banknote } from "lucide-react";
 import type { MemberNotification } from "@/components/member/notifications/types";
 
 function formatDate(date: Date | null) {
@@ -26,6 +26,8 @@ function iconFor(type: MemberNotification["type"]) {
       return ListTodo;
     case "withdrawal":
       return Banknote;
+    case "announcement":
+      return Megaphone;
     default:
       return Bell;
   }
@@ -48,7 +50,9 @@ export default function NotificationCard({
         ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
         : notification.type === "follow"
           ? "bg-sky-500/10 text-sky-700 dark:text-sky-300"
-          : "bg-primary/10 text-primary";
+          : notification.type === "announcement"
+            ? "bg-violet-500/10 text-violet-700 dark:text-violet-300"
+            : "bg-primary/10 text-primary";
 
   return (
     <article

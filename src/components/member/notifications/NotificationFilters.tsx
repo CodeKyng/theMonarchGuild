@@ -15,7 +15,7 @@ export default function NotificationFilters({
         <div>
           <h2 className="font-semibold">Your activity</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Messages, follows, task rewards, withdrawals, and more.
+            Messages, follows, task rewards, withdrawals, announcements, and more.
           </p>
         </div>
         <Select value={filter} onValueChange={(value) => onFilter(value ?? "all")}>
@@ -36,6 +36,7 @@ export default function NotificationFilters({
             <SelectItem value="task">Tasks</SelectItem>
             <SelectItem value="reputation">Recognition</SelectItem>
             <SelectItem value="withdrawal">Withdrawals</SelectItem>
+            <SelectItem value="announcement">Announcements</SelectItem>
             <SelectItem value="general">General</SelectItem>
           </SelectContent>
         </Select>
