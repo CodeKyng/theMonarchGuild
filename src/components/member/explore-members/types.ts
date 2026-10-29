@@ -12,4 +12,6 @@ export interface PublicMemberProfile {
   linkedinUrl: string;
   githubUrl: string;
   twitterUrl: string;
+  followerCount?: number;
+  followingCount?: number;
 }
