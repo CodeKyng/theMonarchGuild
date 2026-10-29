@@ -181,24 +181,24 @@ export default function MemberProfile() {
     : "Add experience";
 
   return (
-    <main className="mx-auto w-full min-w-0 max-w-6xl space-y-6 pb-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
+    <main className="mx-auto w-full min-w-0 max-w-6xl space-y-4 pb-6 sm:space-y-5">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+        <div className="min-w-0">
           <p className="text-sm font-medium text-primary">Your corner of the Guild</p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Show people what you do, what you’re learning, and how to connect.
           </p>
         </div>
         <Link
           to="/member/account"
-          className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          className="shrink-0 text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
           Account & onboarding
         </Link>
       </div>
 
       {loading ? (
-        <div className="flex min-h-64 items-center justify-center gap-2 text-sm text-muted-foreground" role="status">
+        <div className="flex min-h-40 items-center justify-center gap-2 text-sm text-muted-foreground" role="status">
           <LoaderCircle className="size-4 animate-spin" />
           Loading your profile…
         </div>
@@ -217,23 +217,23 @@ export default function MemberProfile() {
           <ConnectWallet />
 
           {completion < 100 && (
-            <section className="flex flex-col gap-4 rounded-2xl border border-primary/20 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-              <div>
-                <h2 className="font-semibold">Finish setting up your member profile</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+            <section className="flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/[0.04] p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+              <div className="min-w-0">
+                <h2 className="text-sm font-semibold">Finish setting up your member profile</h2>
+                <p className="mt-0.5 text-sm text-muted-foreground">
                   Add your work and skills so other builders can understand where you fit.
                 </p>
               </div>
-              <Button type="button" variant="outline" onClick={() => setEditOpen(true)}>
+              <Button type="button" variant="outline" size="sm" className="w-full shrink-0 sm:w-auto" onClick={() => setEditOpen(true)}>
                 Complete profile
               </Button>
             </section>
           )}
 
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(17rem,0.8fr)]">
-            <div className="space-y-4">
+          <div className="grid min-w-0 grid-cols-1 items-start gap-3 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,0.85fr)] lg:gap-4">
+            <div className="grid min-w-0 gap-3">
               <ProfileSection title="About me" icon={<UserRound className="size-4" />}>
-                <p className="whitespace-pre-wrap break-words text-sm leading-7 text-muted-foreground">
+                <p className="whitespace-pre-wrap break-words text-sm leading-6 text-muted-foreground">
                   {profile.bio ||
                     "Add a short introduction about what you’re building, learning, or hoping to contribute."}
                 </p>
@@ -242,33 +242,33 @@ export default function MemberProfile() {
                 <ProfileSkills profile={profile} />
               </ProfileSection>
             </div>
-            <div className="space-y-4">
+            <div className="grid min-w-0 gap-3">
               <ProfileSection title="Work snapshot" icon={<BriefcaseBusiness className="size-4" />}>
-                <dl className="space-y-4">
-                  <div className="flex gap-3">
+                <dl className="space-y-3">
+                  <div className="flex gap-2.5">
                     <BriefcaseBusiness className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                    <div>
+                    <div className="min-w-0">
                       <dt className="text-xs text-muted-foreground">Work type</dt>
-                      <dd className="mt-0.5 text-sm font-medium">{profile.workType || "Not added"}</dd>
+                      <dd className="mt-0.5 break-words text-sm font-medium">{profile.workType || "Not added"}</dd>
                     </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-2.5">
                     <Clock3 className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                    <div>
+                    <div className="min-w-0">
                       <dt className="text-xs text-muted-foreground">Experience</dt>
                       <dd className="mt-0.5 text-sm font-medium">{experience}</dd>
                     </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-2.5">
                     <MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                    <div>
+                    <div className="min-w-0">
                       <dt className="text-xs text-muted-foreground">Location / time zone</dt>
                       <dd className="mt-0.5 break-words text-sm font-medium">{profile.location || "Not added"}</dd>
                     </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-2.5">
                     <Mail className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                    <div>
+                    <div className="min-w-0">
                       <dt className="text-xs text-muted-foreground">Account email · private</dt>
                       <dd className="mt-0.5 break-all text-sm font-medium">{user.email || "Unavailable"}</dd>
                     </div>
@@ -284,7 +284,7 @@ export default function MemberProfile() {
           {feedback && (
             <p
               role={feedback.type === "error" ? "alert" : "status"}
-              className={`rounded-xl px-4 py-3 text-sm ${
+              className={`rounded-xl px-3 py-2.5 text-sm ${
                 feedback.type === "error"
                   ? "bg-destructive/5 text-destructive"
                   : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
