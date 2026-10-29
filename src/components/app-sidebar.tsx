@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Activity, BriefcaseBusiness, CalendarDays, ChartNoAxesCombined,
@@ -5,8 +6,9 @@ import {
   LayoutDashboard, LifeBuoy, ListTodo, Mail, Plug, Settings2, ShieldCheck, ShieldEllipsis,
   Trophy, UserRound, UsersRound, type LucideIcon,
 } from "lucide-react";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 
-import type { UserRole } from "@/auth/AuthContext";
+import { useAuth, type UserRole } from "@/auth/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -15,11 +17,13 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { db } from "@/firebase";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   role: UserRole;
@@ -37,10 +41,45 @@ const rolePaths: Record<UserRole, string> = {
   member: "/member",
 };
 
+function formatBadge(count: number) {
+  if (count <= 0) return null;
+  return count > 99 ? "99+" : String(count);
+}
+
 export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const location = useLocation();
+  const { user } = useAuth();
   const { isMobile, setOpenMobile } = useSidebar();
   const dashboardPath = rolePaths[role];
+
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
+  useEffect(() => {
+    if (!user || role !== "member") {
+      setUnreadNotifications(0);
+      setUnreadMessages(0);
+      return;
+    }
+    const unsub = onSnapshot(
+      query(collection(db, "users", user.uid, "notifications"), where("readAt", "==", null)),
+      (snap) => {
+        let messages = 0;
+        snap.docs.forEach((d) => {
+          if (d.data().type === "message") messages += 1;
+        });
+        setUnreadNotifications(snap.size);
+        setUnreadMessages(messages);
+      },
+      (err) => {
+        console.error("Failed to load notification badges:", err);
+        setUnreadNotifications(0);
+        setUnreadMessages(0);
+      },
+    );
+    return unsub;
+  }, [user, role]);
+
   const adminGroups: { label: string; links: { label: string; href: string; icon: LucideIcon }[] }[] = [
     { label: "Workspace", links: [
       { label: "Overview", href: "/admin", icon: LayoutDashboard },
@@ -69,7 +108,8 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       { label: "Platform Settings", href: "/admin/platform-settings", icon: Settings2 },
     ] },
   ];
-  const memberGroups: { label: string; links: { label: string; href: string; icon: LucideIcon }[] }[] = [
+
+  const memberGroups: { label: string; links: { label: string; href: string; icon: LucideIcon; badgeKey?: "messages" | "notifications" }[] }[] = [
     { label: "Guild", links: [
       { label: "Overview", href: "/member", icon: LayoutDashboard },
       { label: "Community", href: "/member/community", icon: Activity },
@@ -84,12 +124,13 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       { label: "Leaderboard", href: "/member/leaderboard", icon: Trophy },
     ] },
     { label: "You", links: [
-      { label: "Messages", href: "/member/messages", icon: Mail },
-      { label: "Notifications", href: "/member/notifications", icon: Bell },
+      { label: "Messages", href: "/member/messages", icon: Mail, badgeKey: "messages" },
+      { label: "Notifications", href: "/member/notifications", icon: Bell, badgeKey: "notifications" },
       { label: "My Profile", href: "/member/profile", icon: UserRound },
       { label: "Settings", href: "/member/settings", icon: Settings2 },
     ] },
   ];
+
   const staffGroups: { label: string; links: { label: string; href: string; icon: LucideIcon }[] }[] = [
     { label: "Workspace", links: [
       { label: "Overview", href: "/staff", icon: LayoutDashboard },
@@ -115,6 +156,15 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
     ] },
   ];
 
+  function badgeFor(key?: "messages" | "notifications") {
+    if (key === "messages") return formatBadge(unreadMessages);
+    if (key === "notifications") return formatBadge(unreadNotifications);
+    return null;
+  }
+
+  const groups =
+    role === "admin" ? adminGroups : role === "member" ? memberGroups : staffGroups;
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="p-3">
@@ -134,24 +184,44 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        {(role === "admin" ? adminGroups : role === "member" ? memberGroups : staffGroups).map((group) => (
-        <SidebarGroup key={group.label}>
-          <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-          <SidebarMenu>
-            {group.links.map(({ label, href, icon: Icon }) => (
-              <SidebarMenuItem key={href}>
-                <SidebarMenuButton
-                  isActive={location.pathname === href || (href !== dashboardPath && location.pathname.startsWith(`${href}/`))}
-                  tooltip={label}
-                  render={<Link to={href} onClick={() => { if (isMobile) setOpenMobile(false); }} />}
-                >
-                  <Icon aria-hidden="true" />
-                  <span>{label}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
+        {groups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarMenu>
+              {group.links.map((link) => {
+                const { label, href, icon: Icon } = link;
+                const badgeKey = "badgeKey" in link ? link.badgeKey : undefined;
+                const badge = badgeFor(badgeKey);
+                return (
+                  <SidebarMenuItem key={href}>
+                    <SidebarMenuButton
+                      isActive={
+                        location.pathname === href ||
+                        (href !== dashboardPath && location.pathname.startsWith(`${href}/`))
+                      }
+                      tooltip={badge ? `${label} (${badge})` : label}
+                      render={
+                        <Link
+                          to={href}
+                          onClick={() => {
+                            if (isMobile) setOpenMobile(false);
+                          }}
+                        />
+                      }
+                    >
+                      <Icon aria-hidden="true" />
+                      <span>{label}</span>
+                    </SidebarMenuButton>
+                    {badge && (
+                      <SidebarMenuBadge className="bg-primary text-primary-foreground">
+                        {badge}
+                      </SidebarMenuBadge>
+                    )}
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroup>
         ))}
       </SidebarContent>
 
