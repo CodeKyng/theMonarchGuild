@@ -207,10 +207,11 @@ export default function MemberMessages() {
   }
 
   async function startConversation(contact: MemberContact) {
-    if (!user || !ownName) {
-      setError("Complete your Guild profile before starting a conversation.");
+    if (!user) {
+      setError("Sign in to start a conversation.");
       return;
     }
+    const senderName = ownName || user.displayName || user.email || "Guild member";
     setStarting(true);
     setError("");
     const participants = [user.uid, contact.id].sort();
@@ -222,7 +223,7 @@ export default function MemberMessages() {
         const conversation: MemberConversation = {
           id: conversationId,
           participants,
-          participantNames: { [user.uid]: ownName, [contact.id]: contact.displayName },
+          participantNames: { [user.uid]: senderName, [contact.id]: contact.displayName },
           lastMessage: "",
           lastMessageAt: null,
           lastMessageId: "",
@@ -276,9 +277,9 @@ export default function MemberMessages() {
       batch.set(notificationRef, {
         type: "message",
         title: "New message",
-        body: `${ownName || "A Guild member"} sent you a message.`,
-        href: `${basePath}/messages?conversation=${encodeURIComponent(selectedConversation.id)}`,
-        actorName: ownName || "A Guild member",
+        body: `${ownName || user.displayName || user.email || "A Guild member"} sent you a message.`,
+        href: `/member/messages?conversation=${encodeURIComponent(selectedConversation.id)}`,
+        actorName: ownName || user.displayName || user.email || "A Guild member",
         sourceId: selectedConversation.id,
         sourceMessageId: messageRef.id,
         createdAt: serverTimestamp(),
