@@ -1,4 +1,4 @@
-import { ArrowUpRight, MapPin, Pencil, Sparkles } from "lucide-react";
+import { ArrowUpRight, MapPin, Pencil, Sparkles, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +10,8 @@ export default function ProfileHero({
   photoUrl,
   completion,
   onEdit,
+  followerCount = 0,
+  followingCount = 0,
 }: {
   name: string;
   title: string;
@@ -18,6 +20,8 @@ export default function ProfileHero({
   photoUrl: string | null;
   completion: number;
   onEdit: () => void;
+  followerCount?: number;
+  followingCount?: number;
 }) {
   const initials = name
     .split(/[\s@._-]+/)
@@ -56,6 +60,15 @@ export default function ProfileHero({
                 <span className="truncate">{location}</span>
               </p>
             )}
+            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1">
+                <Users className="size-3.5 shrink-0" aria-hidden="true" />
+                <span className="font-semibold text-foreground tabular-nums">{followerCount}</span> followers
+              </span>
+              <span>
+                <span className="font-semibold text-foreground tabular-nums">{followingCount}</span> following
+              </span>
+            </div>
           </div>
         </div>
         <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:items-end">
