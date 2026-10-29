@@ -4,6 +4,7 @@ export type NotificationType =
   | "follow"
   | "task"
   | "withdrawal"
+  | "announcement"
   | "general";
 
 export interface MemberNotification {
