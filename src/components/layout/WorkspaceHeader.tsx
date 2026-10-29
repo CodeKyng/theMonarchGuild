@@ -70,26 +70,26 @@ const staffPageTitles: Record<string, string> = {
 export default function WorkspaceHeader({ role }: { role: UserRole }) {
   const { user } = useAuth();
   const location = useLocation();
-  
+
   const name = user?.displayName?.trim() || user?.email || roleLabels[role];
-  const pageTitle = role === "admin"
-    ? adminPageTitles[location.pathname] ?? "Admin workspace"
-    : role === "member"
-      ? memberPageTitles[location.pathname] ?? "Member workspace"
-      : staffPageTitles[location.pathname] ?? roleLabels[role];
-  
+  const pageTitle =
+    role === "admin"
+      ? (adminPageTitles[location.pathname] ?? "Admin workspace")
+      : role === "member"
+        ? (memberPageTitles[location.pathname] ?? "Member workspace")
+        : (staffPageTitles[location.pathname] ?? roleLabels[role]);
 
   return (
-    <header className="sticky top-0 z-20 flex h-16 min-w-0 items-center justify-between gap-2 border-b border-border bg-background/90 px-2.5 backdrop-blur sm:gap-3 sm:px-5">
-      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-        <SidebarTrigger aria-label="Toggle navigation" />
+    <header className="sticky top-0 z-20 flex h-14 min-w-0 items-center justify-between gap-2 border-b border-border bg-background/90 px-2.5 backdrop-blur sm:h-16 sm:gap-3 sm:px-5">
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+        <SidebarTrigger aria-label="Toggle navigation" className="shrink-0" />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-foreground">{pageTitle}</p>
           <p className="hidden truncate text-xs text-muted-foreground sm:block">Welcome back, {name}</p>
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-2.5">
         <HeaderConnectWallet />
         <ModeToggle />
         <AvatarDropdown />

@@ -30,12 +30,12 @@ function shortAddress(address: string) {
 /** Compact connect control for the top header (all roles). */
 export function HeaderConnectWallet() {
   return (
-    <div className="relative z-30 shrink-0 [&_button]:!h-9 [&_button]:!min-h-9 [&_button]:!rounded-xl [&_button]:!text-xs">
+    <div className="tw-wallet-host relative z-30 max-w-[9.5rem] shrink-0 overflow-hidden sm:max-w-none">
       <ConnectButton
         client={thirdwebClient}
         chain={baseSepolia}
         wallets={wallets}
-        connectButton={{ label: "Connect Wallet" }}
+        connectButton={{ label: "Connect" }}
         theme="dark"
       />
     </div>
@@ -140,20 +140,20 @@ export default function ConnectWallet() {
   if (!user) return null;
 
   return (
-    <Card className="relative z-10 border-primary/20 bg-primary/[0.03] shadow-sm">
-      <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex min-w-0 items-start gap-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+    <Card size="sm" className="min-w-0 border-primary/20 bg-primary/[0.03] shadow-sm">
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex min-w-0 items-start gap-2.5">
+          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
             <Wallet className="size-4" />
           </span>
-          <div className="min-w-0 space-y-1">
-            <CardTitle className="text-base">Connect wallet</CardTitle>
-            <CardDescription>
-              Link a wallet to your guild profile for task rewards, on-chain activity, and identity.
+          <div className="min-w-0 space-y-0.5">
+            <CardTitle className="text-sm font-semibold">Connect wallet</CardTitle>
+            <CardDescription className="text-xs leading-relaxed">
+              Link a wallet for task rewards and on-chain identity.
             </CardDescription>
           </div>
         </div>
-        <div className="relative z-20 w-full shrink-0 sm:w-auto [&_button]:!w-full sm:[&_button]:!w-auto">
+        <div className="tw-wallet-host w-full shrink-0 sm:w-auto">
           <ConnectButton
             client={thirdwebClient}
             chain={baseSepolia}
@@ -163,65 +163,60 @@ export default function ConnectWallet() {
           />
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {loading ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <LoaderCircle className="size-4 animate-spin" />
-            Loading wallet status…
-          </div>
-        ) : (
-          <>
-            {linkedAddress && (
-              <div className="flex flex-col gap-3 rounded-xl border border-border/70 bg-background/60 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0 space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Linked to profile</p>
-                  <p className="font-mono text-sm font-medium" title={linkedAddress}>
-                    {shortAddress(linkedAddress)}
-                  </p>
-                  <p className="break-all text-xs text-muted-foreground">{linkedAddress}</p>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={saving}
-                  onClick={() => void unlinkWallet()}
-                  className="shrink-0"
-                >
-                  {saving ? <LoaderCircle className="size-4 animate-spin" /> : <Unlink className="size-4" />}
-                  Unlink
-                </Button>
+
+      {(loading || linkedAddress || saving || feedback) && (
+        <CardContent className="space-y-2.5 pt-0">
+          {loading && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <LoaderCircle className="size-4 animate-spin" />
+              Loading wallet status…
+            </div>
+          )}
+
+          {!loading && linkedAddress && (
+            <div className="flex flex-col gap-2 rounded-lg border border-border/70 bg-background/60 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-muted-foreground">Linked to profile</p>
+                <p className="mt-0.5 font-mono text-sm font-medium" title={linkedAddress}>
+                  {shortAddress(linkedAddress)}
+                </p>
+                <p className="mt-0.5 break-all text-xs text-muted-foreground">{linkedAddress}</p>
               </div>
-            )}
-
-            {!linkedAddress && (
-              <p className="text-sm text-muted-foreground">
-                Connect your wallet to save the address on your profile.
-              </p>
-            )}
-
-            {saving && !linkedAddress && (
-              <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                <LoaderCircle className="size-4 animate-spin" />
-                Linking wallet to your profile…
-              </p>
-            )}
-
-            {feedback && (
-              <p
-                role={feedback.type === "error" ? "alert" : "status"}
-                className={
-                  feedback.type === "error"
-                    ? "text-sm text-destructive"
-                    : "text-sm text-emerald-600 dark:text-emerald-400"
-                }
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={saving}
+                onClick={() => void unlinkWallet()}
+                className="w-full shrink-0 sm:w-auto"
               >
-                {feedback.message}
-              </p>
-            )}
-          </>
-        )}
-      </CardContent>
+                {saving ? <LoaderCircle className="size-4 animate-spin" /> : <Unlink className="size-4" />}
+                Unlink
+              </Button>
+            </div>
+          )}
+
+          {!loading && saving && !linkedAddress && (
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <LoaderCircle className="size-4 animate-spin" />
+              Linking wallet to your profile…
+            </p>
+          )}
+
+          {feedback && (
+            <p
+              role={feedback.type === "error" ? "alert" : "status"}
+              className={
+                feedback.type === "error"
+                  ? "text-sm text-destructive"
+                  : "text-sm text-emerald-600 dark:text-emerald-400"
+              }
+            >
+              {feedback.message}
+            </p>
+          )}
+        </CardContent>
+      )}
     </Card>
   );
 }
