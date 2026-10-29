@@ -121,6 +121,8 @@ function AppRoutes() {
           <Route path="events" element={<AdminEvents />} />
           <Route path="users" element={<Navigate to="/admin/members" replace />} />
           <Route path="account" element={<Account />} />
+          <Route path="messages" element={<MemberMessages />} />
+          <Route path="notifications" element={<MemberNotifications />} />
           <Route path=":section" element={<AdminModulePage />} />
         </Route>
       </Route>
@@ -143,6 +145,8 @@ function AppRoutes() {
           <Route path="support-inbox" element={<StaffSupportInbox />} />
           <Route path="analytics" element={<StaffAnalytics />} />
           <Route path="settings" element={<StaffSettings />} />
+          <Route path="messages" element={<MemberMessages />} />
+          <Route path="notifications" element={<MemberNotifications />} />
           <Route path=":section" element={<StaffModulePage />} />
         </Route>
       </Route>
