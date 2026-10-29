@@ -50,7 +50,8 @@ function notificationFromDoc(id: string, data: Record<string, unknown>): MemberN
 }
 
 export default function MemberNotifications() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const basePath = role ? `/${role}` : "/member";
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<MemberNotification[]>([]);
   const [filter, setFilter] = useState("all");
@@ -124,23 +125,26 @@ export default function MemberNotifications() {
   async function openNotification(notification: MemberNotification) {
     await markRead(notification);
     if (notification.type === "message" && notification.sourceId) {
-      navigate(`/member/messages?conversation=${encodeURIComponent(notification.sourceId)}`);
-      return;
-    }
-    if (notification.type === "reputation") {
-      navigate("/member/leaderboard");
-      return;
-    }
-    if (notification.type === "task" || notification.type === "withdrawal") {
-      navigate(notification.href || "/member/tasks");
-      return;
-    }
-    if (notification.type === "follow") {
-      navigate(notification.href || "/member/explore-members");
+      navigate(`${basePath}/messages?conversation=${encodeURIComponent(notification.sourceId)}`);
       return;
     }
     const href = notification.href;
-    if (href.startsWith("/") && !href.startsWith("//")) navigate(href);
+    if (href.startsWith("/") && !href.startsWith("//")) {
+      const mapped = href.replace(/^\/(member|staff|admin)/, basePath);
+      navigate(mapped);
+      return;
+    }
+    if (notification.type === "reputation") {
+      navigate(`${basePath}/leaderboard`);
+      return;
+    }
+    if (notification.type === "task" || notification.type === "withdrawal") {
+      navigate(`${basePath}/tasks`);
+      return;
+    }
+    if (notification.type === "follow") {
+      navigate(`${basePath}/explore-members`);
+    }
   }
 
   function retry() {
