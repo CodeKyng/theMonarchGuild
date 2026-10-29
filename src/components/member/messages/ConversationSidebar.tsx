@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { MessageSquarePlus, Search, UsersRound } from "lucide-react";
 import type { MemberContact, MemberConversation } from "@/components/member/messages/types";
+import { isConversationUnread } from "@/components/member/messages/types";
 import ConversationListItem from "@/components/member/messages/ConversationListItem";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,11 @@ export default function ConversationSidebar({
     [contacts, search],
   );
 
+  const unreadCount = useMemo(
+    () => conversations.filter((c) => isConversationUnread(c, currentUserId)).length,
+    [conversations, currentUserId],
+  );
+
   return (
     <aside className="flex min-h-0 min-w-0 flex-1 flex-col border-b border-border md:border-b-0 md:border-r">
       <div className="shrink-0 space-y-4 border-b border-border p-4">
@@ -53,7 +59,9 @@ export default function ConversationSidebar({
             <h2 className="font-semibold">{view === "inbox" ? "Your inbox" : "Find members"}</h2>
             <p className="text-xs text-muted-foreground">
               {view === "inbox"
-                ? `${conversations.length} conversations`
+                ? `${conversations.length} conversation${conversations.length === 1 ? "" : "s"}${
+                    unreadCount ? ` · ${unreadCount} unread` : ""
+                  }`
                 : `${contacts.length} discoverable members`}
             </p>
           </div>
