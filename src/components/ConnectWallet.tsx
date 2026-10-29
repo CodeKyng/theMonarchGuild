@@ -8,7 +8,7 @@ import {
 } from "thirdweb/react";
 import { createWallet, inAppWallet } from "thirdweb/wallets";
 import { baseSepolia } from "thirdweb/chains";
-import { Link2, LoaderCircle, Unlink, Wallet } from "lucide-react";
+import { LoaderCircle, Unlink, Wallet } from "lucide-react";
 import { useAuth } from "@/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,29 +30,15 @@ function shortAddress(address: string) {
 /** Compact connect control for the top header (all roles). */
 export function HeaderConnectWallet() {
   return (
-    <ConnectButton
-      client={thirdwebClient}
-      chain={baseSepolia}
-      wallets={wallets}
-      connectButton={{
-        label: "Connect Wallet",
-        style: {
-          minHeight: "36px",
-          height: "36px",
-          fontSize: "13px",
-          borderRadius: "10px",
-        },
-      }}
-      detailsButton={{
-        style: {
-          minHeight: "36px",
-          height: "36px",
-          fontSize: "13px",
-          borderRadius: "10px",
-        },
-      }}
-      theme="dark"
-    />
+    <div className="relative z-30 shrink-0 [&_button]:!h-9 [&_button]:!min-h-9 [&_button]:!rounded-xl [&_button]:!text-xs">
+      <ConnectButton
+        client={thirdwebClient}
+        chain={baseSepolia}
+        wallets={wallets}
+        connectButton={{ label: "Connect Wallet" }}
+        theme="dark"
+      />
+    </div>
   );
 }
 
@@ -92,7 +78,6 @@ export default function ConnectWallet() {
     };
   }, [user]);
 
-  // When a wallet connects, persist the address on the user profile.
   useEffect(() => {
     if (!user || !account?.address) return;
     const address = account.address;
@@ -140,7 +125,7 @@ export default function ConnectWallet() {
         try {
           disconnect(activeWallet);
         } catch {
-          // ignore disconnect errors
+          // ignore
         }
       }
       setFeedback({ type: "success", message: "Wallet unlinked from your profile." });
@@ -155,17 +140,30 @@ export default function ConnectWallet() {
   if (!user) return null;
 
   return (
-    <Card className="border-primary/15">
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Wallet className="size-5 text-primary" />
-          <CardTitle>Connect wallet</CardTitle>
+    <Card className="relative z-10 border-primary/20 bg-primary/[0.03] shadow-sm">
+      <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+            <Wallet className="size-4" />
+          </span>
+          <div className="min-w-0 space-y-1">
+            <CardTitle className="text-base">Connect wallet</CardTitle>
+            <CardDescription>
+              Link a wallet to your guild profile for task rewards, on-chain activity, and identity.
+            </CardDescription>
+          </div>
         </div>
-        <CardDescription>
-          Link a wallet to your guild profile for task rewards, on-chain activity, and identity.
-        </CardDescription>
+        <div className="relative z-20 w-full shrink-0 sm:w-auto [&_button]:!w-full sm:[&_button]:!w-auto">
+          <ConnectButton
+            client={thirdwebClient}
+            chain={baseSepolia}
+            wallets={wallets}
+            connectButton={{ label: "Connect Wallet" }}
+            theme="dark"
+          />
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {loading ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <LoaderCircle className="size-4 animate-spin" />
@@ -174,13 +172,13 @@ export default function ConnectWallet() {
         ) : (
           <>
             {linkedAddress && (
-              <div className="flex flex-col gap-3 rounded-xl bg-muted/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 rounded-xl border border-border/70 bg-background/60 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0 space-y-1">
                   <p className="text-xs font-medium text-muted-foreground">Linked to profile</p>
-                  <p className="break-all font-mono text-sm font-medium" title={linkedAddress}>
+                  <p className="font-mono text-sm font-medium" title={linkedAddress}>
                     {shortAddress(linkedAddress)}
                   </p>
-                  <p className="truncate text-xs text-muted-foreground">{linkedAddress}</p>
+                  <p className="break-all text-xs text-muted-foreground">{linkedAddress}</p>
                 </div>
                 <Button
                   type="button"
@@ -196,25 +194,11 @@ export default function ConnectWallet() {
               </div>
             )}
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                <Link2 className="mt-0.5 size-4 shrink-0" />
-                <span>
-                  {linkedAddress
-                    ? "Connect again to switch wallets, or unlink to remove the address from your profile."
-                    : "Connect your wallet to save the address on your profile."}
-                </span>
-              </div>
-              <div className="shrink-0">
-                <ConnectButton
-                  client={thirdwebClient}
-                  chain={baseSepolia}
-                  wallets={wallets}
-                  connectButton={{ label: "Connect Wallet" }}
-                  theme="dark"
-                />
-              </div>
-            </div>
+            {!linkedAddress && (
+              <p className="text-sm text-muted-foreground">
+                Connect your wallet to save the address on your profile.
+              </p>
+            )}
 
             {saving && !linkedAddress && (
               <p className="flex items-center gap-2 text-sm text-muted-foreground">
