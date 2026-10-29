@@ -12,6 +12,7 @@ import ProfileSkills from "@/components/member/profile/ProfileSkills";
 import { Button } from "@/components/ui/button";
 import ConnectWallet from "@/components/ConnectWallet";
 import { db } from "@/firebase";
+import { getFollowerCount, getFollowingCount } from "@/lib/follow";
 
 const emptyProfile: ProfileData = {
   displayName: "",
@@ -38,6 +39,8 @@ export default function MemberProfile() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<ProfileData>(emptyProfile);
   const [directoryVisible, setDirectoryVisible] = useState(false);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -58,6 +61,12 @@ export default function MemberProfile() {
         );
         setDirectoryVisible(data.showInMemberDirectory === true);
         setLoading(false);
+        void Promise.all([getFollowerCount(db, user.uid), getFollowingCount(db, user.uid)]).then(
+          ([followers, following]) => {
+            setFollowerCount(followers);
+            setFollowingCount(following);
+          },
+        ).catch((err) => console.error("Failed to load follow counts:", err));
         setFeedback(null);
       },
       (error) => {
@@ -212,6 +221,8 @@ export default function MemberProfile() {
             photoUrl={user.photoURL}
             completion={completion}
             onEdit={() => setEditOpen(true)}
+            followerCount={followerCount}
+            followingCount={followingCount}
           />
 
           <ConnectWallet />

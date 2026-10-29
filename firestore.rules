@@ -159,6 +159,17 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /follows/{followId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.followerId == request.auth.uid
+        && request.resource.data.followingId is string
+        && request.resource.data.followingId.size() > 0;
+      allow delete: if signedIn()
+        && resource.data.followerId == request.auth.uid;
+      allow update: if false;
+    }
+
     match /taskSubmissions/{submissionId} {
       allow read: if isAdmin() || isStaff() || (signedIn() && resource.data.userId == request.auth.uid);
       allow create: if signedIn()
