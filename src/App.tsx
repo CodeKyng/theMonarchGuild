@@ -31,6 +31,14 @@ const MemberMessages = lazy(() => import("./pages/member/Messages"));
 const MemberNotifications = lazy(() => import("./pages/member/Notifications"));
 const MemberProfile = lazy(() => import("./pages/member/Profile"));
 
+// Marketplace pages
+const MarketplaceHome = lazy(() => import("./pages/marketplace/MarketplaceHome"));
+const Shop = lazy(() => import("./pages/marketplace/Shop"));
+const NFTGallery = lazy(() => import("./pages/marketplace/NFTGallery"));
+const ProductDetail = lazy(() => import("./pages/marketplace/ProductDetail"));
+const Cart = lazy(() => import("./pages/marketplace/Cart"));
+const MyCollection = lazy(() => import("./pages/marketplace/MyCollection"));
+
 const StaffDashboard = lazy(() => import("./pages/staff/Dashboard"));
 const StaffModulePage = lazy(() => import("./pages/staff/StaffModulePage"));
 const StaffTasks = lazy(() => import("./pages/staff/Tasks"));
@@ -169,6 +177,16 @@ function AppRoutes() {
           <Route path="profile" element={<MemberProfile />} />
           <Route path="settings" element={<MemberSettings />} />
           <Route path="account" element={<Account />} />
+        </Route>
+
+        {/* Marketplace routes (Option B) - protected for members only */}
+        <Route path="/marketplace" element={<MemberLayout />}>
+          <Route index element={<MarketplaceHome />} />
+          <Route path="shop" element={<Shop />} />
+          <Route path="nfts" element={<NFTGallery />} />
+          <Route path="product/:id" element={<ProductDetail />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="my-collection" element={<MyCollection />} />
         </Route>
       </Route>
 
