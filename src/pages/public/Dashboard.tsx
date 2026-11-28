@@ -2,6 +2,7 @@ import { ArrowRight, UsersRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import EventCard from "@/components/event-card";
 import HeroSection from "@/components/layout/HeroSection";
+import ScrollToTop from "@/components/ScrollToTop";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -102,12 +103,14 @@ function Dashboard() {
             </CardContent>
           </Card>
         </section>
-
       </main>
 
       <footer className="border-t border-white/10 px-4 py-6 text-center text-xs text-white/40 sm:px-6">
         © 2026 The Monarch Guild. Connect. Contribute. Grow.
       </footer>
+
+      {/* Fixed position — stays in place while the page scrolls */}
+      <ScrollToTop />
     </div>
   );
 }
